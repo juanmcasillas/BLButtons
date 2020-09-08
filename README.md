@@ -5,7 +5,7 @@ A simple, BLE Buttons controller to implement Simulator's button panels.
 
 ## ExceptionDecoder & SPIFFS Image Downloader
 
-1. Go to [https://github.com/me-no-dev/EspExceptionDecoder](https://github.com/me-no-dev/EspExceptionDecoder) and download the latest release.
+1. Go to [https://github.com/me-no-dev/EspExceptionDecoder/releases/](https://github.com/me-no-dev/EspExceptionDecoder/releases/) and download the latest release.
 1. Go to [https://github.com/me-no-dev/arduino-esp32fs-plugin/releases/](https://github.com/me-no-dev/arduino-esp32fs-plugin/releases/) and download the latest release.
 2. Go to the Arduino IDE directory, and open the `Tools` folder.
 3. Unzip the downloaded .zip folders to the Tools folder. 
@@ -21,6 +21,9 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 
 ## BL gamepad library
 
+0. Bounce2[https://github.com/thomasfredericks/Bounce2](https://github.com/thomasfredericks/Bounce2)
 1. Go to [https://github.com/lemmingDev/ESP32-BLE-Gamepad/releases](https://github.com/lemmingDev/ESP32-BLE-Gamepad/releases) and download the latest release.
 2. In the Arduino IDE go to `"Sketch" -> "Include Library" -> "Add .ZIP Library..."` and select the file you just downloaded.
 3. You can now go to `"File" -> "Examples" -> "ESP32 BLE Gamepad"` and select the example to get started.
+4. Updated to [https://github.com/MagnusThome/ESP32-BLE-Gamepad](https://github.com/MagnusThome/ESP32-BLE-Gamepad)
+5. On laptop works properly.
