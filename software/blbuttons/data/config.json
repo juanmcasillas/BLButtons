@@ -1,0 +1,86 @@
+{
+    "ap_mode": false,
+    "dhcp":false,
+    "wifi_ssid":"XXXXX",
+    "wifi_passwd":"YYYY",
+    "ap_name":"BLButtons_AP",
+    "ap_passwd":"BLButtons_AP",
+    "http_user":"admin",
+    "http_passwd":"admin",
+    "retries": 5,
+    "retry_delay": 1000,
+    "http_port": 80,
+    "ip":[192,168,1,253],
+    "gateway":[192,168,1,1],
+    "network":[255,255,255,0],
+    "dns":[8,8,8,8],
+    "ntp_server":"es.pool.ntp.org",
+    "ntp_period":15,
+    "ntp_timezone":10,
+    "ntp_daylight":true,
+    "scheduled_interval": 0.5,
+    "log_file": "/blbuttons.log",
+
+    # NON WORKING CONFIG 
+    # TESTING CONCEPTS 
+    
+    { "type": "encoder", 
+      "name": "enc_1", 
+      "pins": { 
+        "dt" : 12, 
+        "clk": 14, 
+        "sw" : 16 
+      }
+    }
+    { "type": "switch", 
+      "name": "swt_1", 
+      "pins": { 
+        "sw" : 16 
+      }
+    }
+    { "type": "potenciometer", 
+      "name": "pot_1", 
+      "pins": { 
+        "sw" : 16 
+      }
+    }
+    { "type": "button", 
+      "name": "but_1", 
+      "pins": { 
+        "sw" : 16 
+      }
+    }
+    { "type": "lever", 
+      "name": "lever_1", 
+      "pins": { 
+        "sw_1" : 16,
+        "sw_2" : 17,
+      }
+    }
+    { "type": "lever_1", 
+      "name": "lever_1", 
+      "pins": { 
+        "sw" : 16,
+      }
+    }
+
+
+    "inputs": [
+      { "pin": 12, "name": "B1", "type": "pot" },
+      { "pin": 12, "name": "B1", "type": "switch" },
+      { "pin": 12, "name": "B1", "type": "momentary" },
+      { "pin": 12, "name": "B1", "type": "encoder" },
+    ]
+    "siren": {  "pin": 15, "duration": 60000},     
+    "zones": [ 
+          { "pin": 14, "name": "main door", "enabled": true }, 
+          { "pin": 16, "name": "hall",      "enabled": true }, 
+          { "pin": 17, "name": "garage",    "enabled": true }
+      ],
+    "keys": [      
+      { "key": [1,2,3,4] },
+      { "key": [5,6,7,8]  }
+      ],
+    "passwd": "6666",
+    "armed_delay": 20000
+}
