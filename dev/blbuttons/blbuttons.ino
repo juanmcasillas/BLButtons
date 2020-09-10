@@ -65,6 +65,20 @@ void loop() {
       Serial.println("B-released");
     }
 
+    // press all buttons
+    for (int i=0; i<128; i++) {
+      bleGamepad.press(i+1);
+       delay(200);
+       bleGamepad.release(i+1);
+    }
+
+    // move all axes
+    for (int i=-127; i<127; i++) {
+       bleGamepad.setAxes(i, i, i, i, i, i, i,i,i,i, DPAD_DOWN_RIGHT);
+       delay(200);
+    }
+       bleGamepad.setAxes(0, 0, 0, 0, 0, 0, 0,0,0,0, DPAD_CENTERED);
+
     //bleGamepad.setAxes(127, 127, 127, 127, 127, 127, DPAD_DOWN_RIGHT);
     //Serial.println("Press buttons 1 and 14. Move all axes to max. Set DPAD to down right.");
     //bleGamepad.press(BUTTON_14);

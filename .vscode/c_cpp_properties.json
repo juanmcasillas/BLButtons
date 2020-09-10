@@ -4,7 +4,9 @@
             "name": "Win32",
             "includePath": [
                 "C:\\Users\\assman\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\**",
-                "C:\\Users\\assman\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.1\\**"
+                "C:\\Users\\assman\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.1\\**",
+                "/Users/assman/Library/Arduino15/packages/esp32/hardware/esp32/1.0.2/**",
+                "/Users/assman/Library/Arduino15/packages/esp32/tools/**"
             ],
             "forcedInclude": [],
             "intelliSenseMode": "msvc-x64"
