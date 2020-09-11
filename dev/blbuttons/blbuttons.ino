@@ -5,7 +5,7 @@
 #define BUTTON_A_PIN 12
 #define BUTTON_B_PIN 14
 #define LED_PIN 2 
-
+#define POT_PIN 32
 
 
 BleGamepad bleGamepad("BL-Buttons1", "JMCResearch.com", 100);
@@ -17,6 +17,8 @@ void setup() {
 #ifndef RELEASE
     Serial.begin(115200);
     Serial.println("BLButtons Started");
+    analogReadResolution(12);
+    analogSetAttenuation(ADC_11db); // ADC_11db ADC_6db
 #endif
 
     buttonA.attach( BUTTON_A_PIN, INPUT_PULLUP  );
@@ -27,7 +29,7 @@ void setup() {
     buttonB.setPressedState(HIGH);
     buttonB.interval(5);   
     
-    pinMode(LED_PIN, OUTPUT);            // Setup the LED 
+    //pinMode(LED_PIN, OUTPUT);            // Setup the LED 
     
     
     bleGamepad.begin();
@@ -35,6 +37,8 @@ void setup() {
 
 uint8_t button = 1;
 signed char axis = -127;
+int16_t potValue = 0;
+int16_t mapped = 0;
 
 void loop() {
 
@@ -42,6 +46,11 @@ void loop() {
 
     buttonA.update();
     buttonB.update();
+    potValue =analogRead(POT_PIN); // 0..4095
+    mapped = map(potValue,0,4095,-127,127);
+    //Serial.print(potValue);
+    //Serial.print(" ");
+    //Serial.println(mapped);
     
     /*
     if (button > 128) {
@@ -69,37 +78,37 @@ void loop() {
         bleGamepad.press(BUTTON_1);
         bleGamepad.press(BUTTON_64);
         bleGamepad.press(BUTTON_127);
-        digitalWrite(LED_PIN, LOW );
+        //digitalWrite(LED_PIN, LOW );
         //Serial.println("A-pressed");
-        bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_UP_RIGHT, DPAD_UP_LEFT,  DPAD_DOWN_RIGHT, DPAD_DOWN_LEFT);
+        //bleGamepad.setAxes(-32767,32767,0,0,0,0,0,0,0,0, DPAD_UP_RIGHT, DPAD_UP_LEFT,  DPAD_DOWN_RIGHT, DPAD_DOWN_LEFT);
     }
     if ( buttonA.released() ) {
       bleGamepad.release(BUTTON_1);
       bleGamepad.release(BUTTON_64);
       bleGamepad.release(BUTTON_127);
-      digitalWrite(LED_PIN, HIGH );
+      //digitalWrite(LED_PIN, HIGH );
      // Serial.println("A-released");
-       bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
+       //bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
     }
 
     if ( buttonB.pressed() ) {
       bleGamepad.press(BUTTON_9);
       bleGamepad.press(BUTTON_65);
       bleGamepad.press(BUTTON_128);
-      digitalWrite(LED_PIN, LOW );
+      //digitalWrite(LED_PIN, LOW );
      // Serial.println("B-pressed");
-      bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_DOWN_RIGHT, DPAD_DOWN_LEFT,  DPAD_UP_RIGHT, DPAD_UP_LEFT);
+      //bleGamepad.setAxes(32767,32767,0,0,0,0,0,0,0,0, DPAD_DOWN_RIGHT, DPAD_DOWN_LEFT,  DPAD_UP_RIGHT, DPAD_UP_LEFT);
     }
    if ( buttonB.released() ) { 
       bleGamepad.release(BUTTON_9);
       bleGamepad.release(BUTTON_65);
       bleGamepad.release(BUTTON_128);
-      digitalWrite(LED_PIN, HIGH );
+      //digitalWrite(LED_PIN, HIGH );
      //Serial.println("B-released");
-      bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
+      //bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
     }
 
-
+    bleGamepad.setAxes(mapped,mapped,mapped,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
 
 /*
     // press all buttons
@@ -131,4 +140,5 @@ void loop() {
     //delay(500);
      
   }
+  delay(5);
 }

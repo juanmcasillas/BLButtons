@@ -44,6 +44,7 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 9. Two profiles [https://www.esp32.com/viewtopic.php?t=10400](https://www.esp32.com/viewtopic.php?t=10400)
 10. Keyboard HID profile [https://github.com/rupin/ESPJoystick/blob/master/gamepadble632/gamepadble632.ino](https://github.com/rupin/ESPJoystick/blob/master/gamepadble632/gamepadble632.ino)
 11. USB HID definition tables [https://www.usb.org/hid](https://www.usb.org/hid)
+12. More HID details [https://cdn.hackaday.io/files/18003770240352/HID.cpp](https://cdn.hackaday.io/files/18003770240352/HID.cpp)
 ## Available PINOUTS
 
 
