@@ -231,3 +231,58 @@ exports.report = new Uint8Array([
   0xc0 ]                           // END_COLLECTION
 );
 ```
+
+
+Interface 0 HID Report Descriptor Joystick
+Item Tag (Value) Raw Data
+Usage Page (Generic Desktop) 05 01
+Usage (Joystick) 09 04
+Collection (Application) A1 01
+Usage (Pointer) 09 01
+Collection (Physical) A1 00
+Usage (X) 09 30
+Usage (Y) 09 31
+Usage (Z) 09 32
+Usage (Rx) 09 33
+Usage (Ry) 09 34
+Usage (Rz) 09 35
+Usage (Dial) 09 37
+Usage (Slider) 09 36
+Logical Minimum (0) 15 00
+Logical Maximum (4095) 26 FF 0F
+Report Size (16) 75 10
+Report Count (8) 95 08
+Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 02
+End Collection C0
+Usage Page (Button) 05 09
+Usage Minimum (Button 1) 19 01
+Usage Maximum (Button 32) 29 20
+Logical Minimum (0) 15 00
+Logical Maximum (1) 25 01
+Report Size (1) 75 01
+Report Count (32) 95 20
+Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 02
+Usage Page (Generic Desktop) 05 01
+Usage (Hat Switch) 09 39
+Logical Maximum (7) 25 07
+Physical Minimum (0) 35 00
+Physical Maximum (315) 46 3B 01
+Unit Exponent (0) 55 00
+Unit (Eng Rot: deg^4) 65 44
+Report Size (4) 75 04
+Report Count (1) 95 01
+Input (Data,Var,Abs,NWrp,Lin,Pref,Null,Bit) 81 42
+Unit (None) 65 00
+Report Count (1) 95 01
+Report Size (4) 75 04
+Input (Cnst,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 03
+Collection (Logical) A1 02
+Usage Page (Vendor-Defined 1) 06 00 FF
+Usage (Vendor-Defined 1) 09 01
+Logical Minimum (0) 15 00
+Logical Maximum (255) 26 FF 00
+Report Size (8) 75 08
+Report Count (17) 95 11
+Feature (Data,Var,Abs,NWrp,Lin,Pref,NNul,NVol,Bit) B1 02
+End Collection C0
+End Collection C0
