@@ -108,7 +108,7 @@ void loop() {
       //bleGamepad.setAxes(0,0,0,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
     }
 
-    bleGamepad.setAxes(mapped,mapped,mapped,0,0,0,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
+    bleGamepad.setAxes(mapped,mapped,mapped,mapped,mapped,mapped,mapped,mapped,mapped,mapped, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
 
 /*
     // press all buttons
@@ -140,5 +140,5 @@ void loop() {
     //delay(500);
      
   }
-  delay(5);
+  delay(50);
 }
