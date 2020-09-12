@@ -50,29 +50,30 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 ## Available PINOUTS
 
 
-| GPIO   | ADC  | INPUT     | OUTPUT | NOTES                             |
-|--------|------|-----------|--------|----------------------------------:|
-|0       | 1/2  | pulled up | OK     | Outputs PWM signal at boot        |
-|2       | 2/2  | OK        | OK     | Connected to LED. LOW->LED Light  |
-|4       | 0/2  | OK        | OK     |                                   |
-|12      | 5/2  | OK        | OK     | Boot fail if pulled HIGH          |
-|13      | 4/2  | OK        | OK     | Boot fail if pulled HIGH          |
-|14      | 6/2  | OK        | OK     | Outputs PWM signal at boot        |
-|15      | 2/2  | OK        | OK     | Outputs PWM signal at boot        |
-|16      |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
-|17      |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
-|18      |      | OK        | OK     |                                   |
-|19      |      | OK        | OK     |                                   |
-|21      |      | OK        | OK     |                                   |
-|22      |      | OK        | OK     |                                   |
-|23      |      | OK        | OK     |                                   |
-|25      | 8/2  | OK        | OK     |                                   |
-|26      | 9/2  | OK        | OK     |                                   |
-|27      | 7/2  | OK        | OK     |                                   |
-|32      | 4/1  | OK        | OK     |                                   |
-|33      | 5/1  | OK        | OK     |                                   |
-|34      | 6/1  | OK        |        | Input Only                        |
-|35      | 7/1  | OK        |        | Input Only                        |
+| GPIO    | ADC  | INPUT     | OUTPUT | NOTES                             |
+|---------|------|-----------|--------|----------------------------------:|
+|0    x   | 1/2  | pulled up | OK     | Outputs PWM signal at boot        |
+|2    x   | 2/2  | OK        | OK     | Connected to LED. LOW->LED Light  |
+|4    x   | 0/2  | OK        | OK     |                                   |
+|5    x   |      | OK        | OK     | Outputs PWM signal at boot        |
+|12   x   | 5/2  | OK        | OK     | Boot fail if pulled HIGH          |
+|13       | 4/2  | OK        | OK     | Boot fail if pulled HIGH          |
+|14   x   | 6/2  | OK        | OK     | Outputs PWM signal at boot        |
+|15   x   | 2/2  | OK        | OK     | Outputs PWM signal at boot        |
+|16   x   |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
+|17   x   |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
+|18   x   |      | OK        | OK     |                                   |
+|19   x   |      | OK        | OK     |                                   |
+|21       |      | OK        | OK     |                                   |
+|22       |      | OK        | OK     |                                   |
+|23       |      | OK        | OK     |                                   |
+|25       | 8/2  | OK        | OK     |                                   |
+|26   x   | 9/2  | OK        | OK     |                                   |
+|27   x   | 7/2  | OK        | OK     |                                   |
+|32   x   | 4/1  | OK        | OK     |                                   |
+|33   x   | 5/1  | OK        | OK     |                                   |
+|34   x   | 6/1  | OK        |        | Input Only                        |
+|35   x   | 7/1  | OK        |        | Input Only                        |
 
 * ADC Column: ADC Channel/ADC1|ADC2. No number means no ADC.
 * ADC2 pins cannot be used when Wi-Fi is used. 
@@ -120,6 +121,39 @@ CLUTCH (7-2=5)
 2LEV (5-4=1)
 1 free XD
 
+| PIN   | TO                    | NOTES                |
+|-------|-----------------------|---------------------:|
+| 14    | COL_0                 | Boot Fail if HIGH    |
+| 27    | COL_1                 |                      |
+| 26    | COL_2                 |                      |
+| 25    | COL_3                 |                      |
+|-------|-----------------------|----------------------|
+| 33    | POT_1 (leftmost)      | CH_4 ADC1 together   |
+| 32    | POT_2                 | CH_5 ADC1            |
+| 35    | POT_3                 | CH_6 ADC1            |
+| 34    | POT_4 (rightmost)     | CH_7 ADC1            |
+|-------|-----------------------|----------------------|
+| 15    | CLUTCH_1              |                      |
+| 2     | CLUTCH_2              |                      |
+|-------|-----------------------|----------------------|
+| 4     | ROW_0                 | Pulled up            |
+| 16    | ROW_1                 | Connected to LED     |
+| 17    | ROW_2                 |                      |
+| 5     | ROW_3                 | Boot Fail if HIGH    |
+|-------|-----------------------|----------------------|
+| 18    | LEVER_COVER_1         |                      |
+|-------|-----------------------|----------------------|
+| 19    | LEVER_COVER_2         |                      |
+|-------|-----------------------|----------------------|
+| 21    | BUTTON_1              |                      |
+|-------|-----------------------|----------------------|
+| 0     | free pins             | not use              |
+| 2     |                       |                      | 
+| 13    |                       |                      |
+| 22    |                       |                      |
+| 23    |                       |                      |
+|-------|-----------------------|----------------------|
+   
 MAX 32 inputs !!!
 16 + 2 + 2 + 2 = 22 + 4 axis
 
