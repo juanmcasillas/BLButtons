@@ -55,6 +55,12 @@ int16_t pot_1 = 0;
 int16_t pot_2 = 0;
 int16_t pot_3 = 0;
 int16_t pot_4 = 0;
+
+int16_t pot_5 = 0;
+int16_t pot_6 = 0;
+int16_t pot_7 = 0;
+int16_t pot_8 = 0;
+
 int mode = 0;
 
 
@@ -128,12 +134,20 @@ void loop() {
 
   if(bleGamepad.isConnected()) {
 
+    if (mode == 0) {
+      pot_1 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
+      pot_2 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
+      pot_3 = map(analogRead(POT_PIN_3),0,4095,-127,127);// 0..4095
+      pot_4 = map(analogRead(POT_PIN_4),0,4095,-127,127);// 0..4095
+    }
+    else {
+      pot_5 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
+      pot_6 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
+      pot_7 = map(analogRead(POT_PIN_3),0,4095,-127,127);// 0..4095
+      pot_8 = map(analogRead(POT_PIN_4),0,4095,-127,127);// 0..4095
 
-    pot_1 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
-    pot_2 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
-    pot_3 = map(analogRead(POT_PIN_3),0,4095,-127,127);// 0..4095
-    pot_4 = map(analogRead(POT_PIN_4),0,4095,-127,127);// 0..4095
-    
+    }
+
     if ( clutch_1.pressed() ) {
       mode = 1;
     }
@@ -170,13 +184,8 @@ void loop() {
       bleGamepad.release((NUM_BUTTONS*mode)+BUTTON_19);
     }
 
-    // use the high axis
-    if (mode!=0) {
-      bleGamepad.setAxes(0,0,0,0, pot_1,pot_2,pot_3,pot_4, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
-    }
-    else {
-      bleGamepad.setAxes(pot_1,pot_2,pot_3,pot_4,0,0,0,0, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
-    }
+    // update buttons & axis only here
+    bleGamepad.setAxes(pot_1,pot_2,pot_3,pot_4,pot_5,pot_6,pot_7,pot_8, DPAD_CENTERED, DPAD_CENTERED,  DPAD_CENTERED, DPAD_CENTERED);
     
   }
   delay(50);
