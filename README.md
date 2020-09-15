@@ -32,6 +32,7 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 
 ## BL gamepad library
 
+
 0. Bounce2[https://github.com/thomasfredericks/Bounce2](https://github.com/thomasfredericks/Bounce2)
 1. Go to [https://github.com/lemmingDev/ESP32-BLE-Gamepad/releases](https://github.com/lemmingDev/ESP32-BLE-Gamepad/releases) and download the latest release.
 2. In the Arduino IDE go to `"Sketch" -> "Include Library" -> "Add .ZIP Library..."` and select the file you just downloaded.
@@ -46,7 +47,7 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 11. USB HID definition tables [https://www.usb.org/hid](https://www.usb.org/hid)
 12. USB HID usage tables [http://www.freebsddiary.org/APC/usb_hid_usages.php](http://www.freebsddiary.org/APC/usb_hid_usages.php)
 13. More HID details [https://cdn.hackaday.io/files/18003770240352/HID.cpp](https://cdn.hackaday.io/files/18003770240352/HID.cpp)
-
+14. Analog Smooth [https://github.com/MichaelThessel/arduino-analog-smooth](https://github.com/MichaelThessel/arduino-analog-smooth)
 ## Available PINOUTS
 
 
