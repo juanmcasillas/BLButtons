@@ -2,5 +2,5 @@
     "board": "esp32:esp32:node32s",
     "configuration": "FlashFreq=80,UploadSpeed=921600",
     "port": "COM3",
-    "sketch": "dev/blbuttons/blbuttons.ino"
+    "sketch": "blbuttons/blbuttons.ino"
 }
