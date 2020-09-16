@@ -133,7 +133,7 @@ void loop() {
   customKeypad.getKey();    // READ BUTTON MATRIX (EVENT CALLBACK SETUP)
 
   if(bleGamepad.isConnected()) {
-
+    Serial.print(".");
     if (mode == 0) {
       pot_1 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
       pot_2 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
