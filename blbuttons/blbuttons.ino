@@ -10,12 +10,13 @@
 // https://github.com/juanmcasillas/BLButtons
 // 
 // //////////////////////////////////////////////////////////////////////////
-#include <Bounce2.h>      
-#include <BleGamepad.h> 
+
+#include <Bounce2.h>          // https://github.com/thomasfredericks/Bounce2
+#include <BleGamepad.h>       // https://github.com/lemmingDev/ESP32-BLE-Gamepad
 #include <Keypad.h>           // https://github.com/Chris--A/Keypad
+#include <AnalogSmooth.h>     // https://github.com/MichaelThessel/arduino-analog-smooth
+ 
 //#define RELEASE 1
-
-
 
 #define ROWS 4
 #define COLS 4
@@ -60,6 +61,15 @@ int16_t pot_5 = 0;
 int16_t pot_6 = 0;
 int16_t pot_7 = 0;
 int16_t pot_8 = 0;
+
+AnalogSmooth as_1 = AnalogSmooth();
+AnalogSmooth as_2 = AnalogSmooth();
+AnalogSmooth as_3 = AnalogSmooth();
+AnalogSmooth as_4 = AnalogSmooth();
+AnalogSmooth as_5 = AnalogSmooth();
+AnalogSmooth as_6 = AnalogSmooth();
+AnalogSmooth as_7 = AnalogSmooth();
+AnalogSmooth as_8 = AnalogSmooth();
 
 int mode = 0;
 
@@ -135,16 +145,16 @@ void loop() {
   if(bleGamepad.isConnected()) {
     Serial.print(".");
     if (mode == 0) {
-      pot_1 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
-      pot_2 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
-      pot_3 = map(analogRead(POT_PIN_3),0,4095,-127,127);// 0..4095
-      pot_4 = map(analogRead(POT_PIN_4),0,4095,-127,127);// 0..4095
+      pot_1 = map(as_1.smooth(analogRead(POT_PIN_1)),0,4095,-127,127);// 0..4095
+      pot_2 = map(as_2.smooth(analogRead(POT_PIN_2)),0,4095,-127,127);// 0..4095
+      pot_3 = map(as_3.smooth(analogRead(POT_PIN_3)),0,4095,-127,127);// 0..4095
+      pot_4 = map(as_4.smooth(analogRead(POT_PIN_4)),0,4095,-127,127);// 0..4095
     }
     else {
-      pot_5 = map(analogRead(POT_PIN_1),0,4095,-127,127);// 0..4095
-      pot_6 = map(analogRead(POT_PIN_2),0,4095,-127,127);// 0..4095
-      pot_7 = map(analogRead(POT_PIN_3),0,4095,-127,127);// 0..4095
-      pot_8 = map(analogRead(POT_PIN_4),0,4095,-127,127);// 0..4095
+      pot_5 = map(as_5.smooth(analogRead(POT_PIN_1)),0,4095,-127,127);// 0..4095
+      pot_6 = map(as_6.smooth(analogRead(POT_PIN_2)),0,4095,-127,127);// 0..4095
+      pot_7 = map(as_7.smooth(analogRead(POT_PIN_3)),0,4095,-127,127);// 0..4095
+      pot_8 = map(as_8.smooth(analogRead(POT_PIN_4)),0,4095,-127,127);// 0..4095
 
     }
 
