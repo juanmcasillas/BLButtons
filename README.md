@@ -1,7 +1,8 @@
 # BLButtons
 A simple, BLE Buttons controller to implement Simulator's button panels.
 
-<img src="img/blbuttons.jpg" width="500px"></img>
+<img src="img/building/buttons2.jpg" width="500px"></img>
+<img src="img/building/install_02.jpg" width="500px"></img>
 
 # Table Of Contents
 
