@@ -1,5 +1,13 @@
 {
     "files.associations": {
-        "algorithm": "cpp"
+        "*.txt": "plaintext",
+        "algorithm": "cpp",
+        "__locale": "cpp",
+        "functional": "cpp",
+        "__bit_reference": "cpp",
+        "__string": "cpp",
+        "ios": "cpp",
+        "memory": "cpp",
+        "type_traits": "cpp"
     }
 }
