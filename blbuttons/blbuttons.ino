@@ -10,18 +10,20 @@
 // (c) 2020 Juan M. Casillas <juanm.casillas@gmail.com
 // https://github.com/juanmcasillas/BLButtons
 //
-// (c) 2022 Add support for Keyboard mode.
+// (c) 2022 Add support for Keyboard mode. Also added support for Mouse
+// Mode and, KeyPad mode.
 //
 // //////////////////////////////////////////////////////////////////////////
 
 #include <AnalogSmooth.h>  // https://github.com/MichaelThessel/arduino-analog-smooth
-#include <BleGamepad.h>    // https://github.com/lemmingDev/ESP32-BLE-Gamepad
 #include <Bounce2.h>       // https://github.com/thomasfredericks/Bounce2
 #include <Keypad.h>        // https://github.com/Chris--A/Keypad
-#include <BleKeyboard.h>   // https://github.com/T-vK/ESP32-BLE-Keyboard
 
+#include <BleKeyboard.h>
+#include <BleMouse.h>
+#include <BleGamepad.h>
 
-//#define RELEASE 1
+#define RELEASE 1
 
 #define ROWS 4
 #define COLS 4
@@ -36,6 +38,13 @@ uint8_t keymap[ROWS][COLS] = {
     {5, 6, 7, 8},
     {9, 10, 11, 12},
     {13, 14, 15, 16}  //17,18,19
+};
+
+uint8_t button_key_map[] = {
+    MOUSE_LEFT,     KEY_F8,   KEY_F5,  KEY_F1,
+    MOUSE_RIGHT,    KEY_F9,   KEY_F6,  KEY_F2,
+    MOUSE_FORWARD,  KEY_F10,  KEY_F7,  KEY_F3,
+    MOUSE_BACK,     KEY_F12,  KEY_F8,  KEY_F4  
 };
 
 Keypad customKeypad = Keypad(makeKeymap(keymap), rowPins, colPins, ROWS, COLS);
@@ -53,9 +62,6 @@ Keypad customKeypad = Keypad(makeKeymap(keymap), rowPins, colPins, ROWS, COLS);
 #define BUTTON_CLUTCH_2_PIN 2
 
 #define DELAY_TIME 50
-
-BleGamepad bleGamepad("BL-Buttons", "JMCResearch.com", 100);
-BleKeyboard bleKeyboard("BL-Keyboard", "JMCResearch.com", 100);
 
 Bounce2::Button button_LC1 = Bounce2::Button();
 Bounce2::Button button_LC2 = Bounce2::Button();
@@ -116,14 +122,27 @@ void setup() {
     //pinMode(LED_PIN, OUTPUT);            // Setup the LED
 
     customKeypad.addEventListener(keypadEvent);
-    bleGamepad.begin();
-    //bleKeyboard.begin();
+    
+    // multiple HID profile in a single BL connection!
+    Keyboard.begin();
+    Mouse.begin();
+    Gamepad.begin();
+    
 }
 
 void keypadEvent(KeypadEvent key) {
     uint8_t keystate = customKeypad.getState();
     if (keystate == PRESSED) {
         pressKey((NUM_BUTTONS * mode) + key);
+        if (mode == 2) {
+            uint8_t mapped = button_key_map[key-1];
+            if (mapped != MOUSE_LEFT && mapped != MOUSE_RIGHT && mapped != MOUSE_FORWARD && mapped != MOUSE_BACK) {
+                Keyboard.write(mapped);
+            }
+            else {
+                Mouse.click(mapped);
+            }
+        }
     }
     if (keystate == RELEASED) {
         releaseKey((NUM_BUTTONS * mode) + key);
@@ -131,14 +150,14 @@ void keypadEvent(KeypadEvent key) {
 }
 
 void pressKey(uint8_t key) {
-    if (bleGamepad.isConnected()) {
-        bleGamepad.press(key);
+    if (bleDevice.isConnected()) {
+        Gamepad.press(key);
     }
 }
 
 void releaseKey(uint8_t key) {
-    if (bleGamepad.isConnected()) {
-        bleGamepad.release(key);
+    if (bleDevice.isConnected()) {
+        Gamepad.release(key);
     }
 }
 
@@ -150,17 +169,17 @@ void loop() {
     clutch_2.update();
     customKeypad.getKey();  // READ BUTTON MATRIX (EVENT CALLBACK SETUP)
 
-    if (bleGamepad.isConnected()) {
+    if (bleDevice.isConnected()) {
         if (mode == 0) {
             pot_1 = map(as_1.smooth(analogRead(POT_PIN_1)), 0, 4095, -127, 127);  // 0..4095
             pot_2 = map(as_2.smooth(analogRead(POT_PIN_2)), 0, 4095, -127, 127);  // 0..4095
             pot_3 = map(as_3.smooth(analogRead(POT_PIN_3)), 0, 4095, -127, 127);  // 0..4095
             pot_4 = map(as_4.smooth(analogRead(POT_PIN_4)), 0, 4095, -127, 127);  // 0..4095
         } else {
-            pot_5 = map(as_5.smooth(analogRead(POT_PIN_1)), 0, 4095, -127, 127);  // 0..4095
-            pot_6 = map(as_6.smooth(analogRead(POT_PIN_2)), 0, 4095, -127, 127);  // 0..4095
-            pot_7 = map(as_7.smooth(analogRead(POT_PIN_3)), 0, 4095, -127, 127);  // 0..4095
-            pot_8 = map(as_8.smooth(analogRead(POT_PIN_4)), 0, 4095, -127, 127);  // 0..4095
+            pot_5 = map(as_5.smooth(analogRead(POT_PIN_1)), 0, 4095, 10, -10);  // 0..4095    (rx) -> mouse_x
+            pot_6 = map(as_6.smooth(analogRead(POT_PIN_2)), 0, 4095, 10, -10);  // 0..4095    (ry) -> mouse_y
+            pot_7 = map(as_7.smooth(analogRead(POT_PIN_3)), 0, 4095, -5, 5);    // 0..4095    (z)  -> hweel
+            pot_8 = map(as_8.smooth(analogRead(POT_PIN_4)), 0, 4095, -5, 5);    // 0..4095    (rz) -> wheel [leftmost]
         }
 
         if (clutch_1.pressed()) {
@@ -171,38 +190,48 @@ void loop() {
         }
         if (clutch_2.pressed()) {
             mode = 2;
-            // down
+            // down - Map the keyboard controls and mouse input in the X-Y Axis.
         }
         if (clutch_2.released()) {
             mode = 0;
         }
         
 
-        // this is the right one
+        // this is the left one
         if (button_LC1.pressed()) {
-            bleGamepad.press((NUM_BUTTONS * mode) + BUTTON_17);
+            Gamepad.press((NUM_BUTTONS * mode) + BUTTON_17);
         }
         if (button_LC1.released()) {
-            bleGamepad.release((NUM_BUTTONS * mode) + BUTTON_17);
+            Gamepad.release((NUM_BUTTONS * mode) + BUTTON_17);
         }
 
         // this is the right one
         if (button_LC2.pressed()) {
-            bleGamepad.press((NUM_BUTTONS * mode) + BUTTON_18);
+            Gamepad.press((NUM_BUTTONS * mode) + BUTTON_18);
         }
         if (button_LC2.released()) {
-            bleGamepad.release((NUM_BUTTONS * mode) + BUTTON_18);
+            Gamepad.release((NUM_BUTTONS * mode) + BUTTON_18);
         }
 
         if (button_1.pressed()) {
-            bleGamepad.press((NUM_BUTTONS * mode) + BUTTON_19);
+            Gamepad.press((NUM_BUTTONS * mode) + BUTTON_19);
         }
         if (button_1.released()) {
-            bleGamepad.release((NUM_BUTTONS * mode) + BUTTON_19);
+            Gamepad.release((NUM_BUTTONS * mode) + BUTTON_19);
         }
 
         // update buttons & axis only here
-        bleGamepad.setAxes(pot_1, pot_2, pot_3, pot_4, pot_5, pot_6, pot_7, pot_8, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+        // mouse is nightmare only the wheel
+
+        if (mode == 2) {
+           Gamepad.setAxes(pot_1, pot_2, pot_3, pot_4, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+           Mouse.move(pot_5,pot_6,pot_8,pot_7);
+           //Mouse.wheel(pot_8,pot_7);
+        }
+        else {
+            Gamepad.setAxes(pot_1, pot_2, pot_3, pot_4, pot_5, pot_6, pot_7, pot_8, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+        }
+
     }
     delay(DELAY_TIME);
 }

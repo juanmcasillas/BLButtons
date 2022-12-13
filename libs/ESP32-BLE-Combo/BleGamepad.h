@@ -139,7 +139,7 @@
 #define DPAD_LEFT 		  7
 #define DPAD_UP_LEFT 	  8
 
-class BleGamepad_ {
+class Gamepad_ {
 private:
   uint8_t _buttons[16]; // 2x64 -> 128 bytes) [0: 0-64, 1->64-128]
   
@@ -152,6 +152,6 @@ public:
   void release(uint8_t b = BUTTON_1); // release BUTTON_1 by default
   bool isPressed(uint8_t b = BUTTON_1); // check BUTTON_1 by default
   void resetButtons();
-  
+};
 
 extern Gamepad_ Gamepad;

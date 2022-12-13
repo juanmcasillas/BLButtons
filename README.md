@@ -10,13 +10,21 @@ A simple, BLE Buttons controller to implement Simulator's button panels.
 
 # Project Features
 
-I have no features for now
-
+* Support clutch (2 modes).
+* 4 axis x 3 = 12 axis (8 axis supported for Xinput).
+* 17 buttons (x 2 modes) 51 buttons.
+* 2 levers (two buttons) x 3 6 additional buttons.
+* Pov hats are not in use.
+* in clutch_mode == 2 (down), support for keyboard events (F1 ... F12) and mouse control.
 
 ## Bluetooth 3.0 doesn't support BLE, so ... moving to 4.0
 
 https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
 https://github.com/Georgegipa/ESP32-BLE-Combo/tree/master/examples/SendKeyStrokes
+
+To upload, ensure the CLUTCH switch is on 0 (no light) or you can't upload the sketch.
+Use NodeMCU-32S (ESP32) board version to do the work
+
 
 ## ExceptionDecoder & SPIFFS Image Downloader
 
@@ -168,7 +176,7 @@ MAX 32 inputs !!!
 
 CLUTCH mode:
     16 buttons x 2 = 32 inputs
-    configure the BLE to support up to 64 or more buttons ?
+    
 
 
 

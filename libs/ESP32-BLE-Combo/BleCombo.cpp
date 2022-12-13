@@ -132,7 +132,7 @@ static const uint8_t _hidReportDescriptor[] = {
 	REPORT_COUNT(1), 0x01,	  //     REPORT_COUNT (1)
 	HIDINPUT(1), 0x06,		  //     INPUT (Data, Var, Rel)
 	END_COLLECTION(0),		  //   END_COLLECTION
-	END_COLLECTION(0)		  // END_COLLECTION
+	END_COLLECTION(0),		  // END_COLLECTION
 	// -------------------------------------------------- Keypad
 	// --------------------------------------------------
 	USAGE_PAGE(1),       0x01, // USAGE_PAGE (Generic Desktop)
@@ -681,6 +681,26 @@ void BleCombo::move(signed char x, signed char y, signed char wheel, signed char
 	}
 }
 
+
+void BleCombo::wheel(signed char wheel, signed char hWheel)
+{
+	if (this->isConnected())
+	{
+		uint8_t m[5];
+		m[0] = _buttons;
+		m[1] = 0;
+		m[2] = 0;
+		m[3] = wheel;
+		m[4] = hWheel;
+		this->inputMouse->setValue(m, 5);
+		this->inputMouse->notify();
+#if defined(USE_NIMBLE)
+		// vTaskDelay(delayTicks);
+		this->delay_ms(_delay_ms);
+#endif // USE_NIMBLE
+	}
+}
+
 void BleCombo::buttons(const uint16_t b)
 {
 	if (b != _buttons)
@@ -766,7 +786,7 @@ void BleCombo::resetButtons() {
 	sendReport(&_keyReport);
 
 }
-void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3, int16_t a4, int16_t a5, int16_t a6, signed char hat1, signed char hat2, signed char hat3, signed char hat4) {
+void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3, int16_t a4, int16_t a5, int16_t a6, signed char hat1, signed char hat2, signed char hat3, signed char hat4) {
 
  uint8_t m[26]; // 34
     memset(&m,0,sizeof(m));
@@ -788,7 +808,7 @@ void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3,
     this->inputGamepad->notify();
 
 }
-size_t BleCombo::pressButton(uint8_t k) {
+size_t BleCombo::pressButton(uint8_t b) {
 	char index = (b-1) / 8;
   char bit = (b-1) % 8;
   uint8_t bitmask = (1 << bit);
@@ -797,15 +817,17 @@ size_t BleCombo::pressButton(uint8_t k) {
   if (result != _buttonsGamepad[index]) {
     _buttonsGamepad[index] = result;
   }
+ return result;
 
 }
-size_t BleCombo::releaseButton(uint8_t k) {
+size_t BleCombo::releaseButton(uint8_t b) {
  char index = (b-1) / 8;
   char bit = (b-1) % 8;
   uint8_t bitmask = (1 << bit);
 
   uint64_t result = _buttonsGamepad[index] & ~bitmask;
     _buttonsGamepad[index] = result;
+  return result;
 
 }
 bool BleCombo::isPressedButton(uint8_t b) {
@@ -816,5 +838,4 @@ bool BleCombo::isPressedButton(uint8_t b) {
   if ((bitmask & _buttonsGamepad[index]) > 0)
     return true;
   return false;	
-
 }

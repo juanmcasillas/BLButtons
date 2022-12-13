@@ -30,8 +30,8 @@ void loop() {
 
     delay(1000);
   
-  Serial.println("Waiting 5 seconds...");
-  delay(5000);
+    Serial.println("Waiting 5 seconds...");
+    delay(5000);
 
     Serial.println("Left click");
     Mouse.click(MOUSE_LEFT);
@@ -61,8 +61,8 @@ void loop() {
     Mouse.click(MOUSE_LEFT | MOUSE_RIGHT | MOUSE_MIDDLE);
     delay(500);  
 
-  Serial.println("Waiting 5 seconds...");
-  delay(5000);
+    Serial.println("Waiting 5 seconds...");
+    delay(5000);
 
     Serial.println("Sending some buttons");
     Gamepad.press(12);
@@ -72,6 +72,6 @@ void loop() {
     Gamepad.setAxes(0, 0, 512, 512, 512, 512, 0, 0, 0, 0,0,0);
     delay(500);
 
-    }
+  }
 
 }
