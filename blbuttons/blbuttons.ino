@@ -10,12 +10,16 @@
 // (c) 2020 Juan M. Casillas <juanm.casillas@gmail.com
 // https://github.com/juanmcasillas/BLButtons
 //
+// (c) 2022 Add support for Keyboard mode.
+//
 // //////////////////////////////////////////////////////////////////////////
 
 #include <AnalogSmooth.h>  // https://github.com/MichaelThessel/arduino-analog-smooth
 #include <BleGamepad.h>    // https://github.com/lemmingDev/ESP32-BLE-Gamepad
 #include <Bounce2.h>       // https://github.com/thomasfredericks/Bounce2
 #include <Keypad.h>        // https://github.com/Chris--A/Keypad
+#include <BleKeyboard.h>   // https://github.com/T-vK/ESP32-BLE-Keyboard
+
 
 //#define RELEASE 1
 
@@ -36,6 +40,7 @@ uint8_t keymap[ROWS][COLS] = {
 
 Keypad customKeypad = Keypad(makeKeymap(keymap), rowPins, colPins, ROWS, COLS);
 
+
 #define LED_PIN 2
 #define POT_PIN_1 33
 #define POT_PIN_2 32
@@ -50,12 +55,13 @@ Keypad customKeypad = Keypad(makeKeymap(keymap), rowPins, colPins, ROWS, COLS);
 #define DELAY_TIME 50
 
 BleGamepad bleGamepad("BL-Buttons", "JMCResearch.com", 100);
+BleKeyboard bleKeyboard("BL-Keyboard", "JMCResearch.com", 100);
 
-Button button_LC1 = Button();
-Button button_LC2 = Button();
-Button button_1 = Button();
-Button clutch_1 = Button();
-Button clutch_2 = Button();
+Bounce2::Button button_LC1 = Bounce2::Button();
+Bounce2::Button button_LC2 = Bounce2::Button();
+Bounce2::Button button_1 = Bounce2::Button();
+Bounce2::Button clutch_1 = Bounce2::Button();
+Bounce2::Button clutch_2 = Bounce2::Button();
 
 int16_t pot_1 = 0;
 int16_t pot_2 = 0;
@@ -111,6 +117,7 @@ void setup() {
 
     customKeypad.addEventListener(keypadEvent);
     bleGamepad.begin();
+    //bleKeyboard.begin();
 }
 
 void keypadEvent(KeypadEvent key) {
@@ -164,10 +171,12 @@ void loop() {
         }
         if (clutch_2.pressed()) {
             mode = 2;
+            // down
         }
         if (clutch_2.released()) {
             mode = 0;
         }
+        
 
         // this is the right one
         if (button_LC1.pressed()) {

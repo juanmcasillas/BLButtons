@@ -15,6 +15,8 @@ I have no features for now
 
 ## Bluetooth 3.0 doesn't support BLE, so ... moving to 4.0
 
+https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
+
 ## ExceptionDecoder & SPIFFS Image Downloader
 
 1. Go to [https://github.com/me-no-dev/EspExceptionDecoder/releases/](https://github.com/me-no-dev/EspExceptionDecoder/releases/) and download the latest release.
