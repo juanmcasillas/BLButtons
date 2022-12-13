@@ -16,6 +16,7 @@ I have no features for now
 ## Bluetooth 3.0 doesn't support BLE, so ... moving to 4.0
 
 https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
+https://github.com/Georgegipa/ESP32-BLE-Combo/tree/master/examples/SendKeyStrokes
 
 ## ExceptionDecoder & SPIFFS Image Downloader
 
