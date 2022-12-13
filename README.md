@@ -1,5 +1,6 @@
 # BLButtons
-A simple, BLE Buttons controller to implement Simulator's button panels.
+A simple, BLE Buttons controller to implement Simulator's button panels. Now supports multiple BLE profile,
+you you map at the same time a Keyboard, a Gamepad and a Mouse.
 
 <img src="img/building/buttons2.jpg" width="500px"></img>
 <img src="img/building/install_02.jpg" width="500px"></img>
@@ -17,14 +18,12 @@ A simple, BLE Buttons controller to implement Simulator's button panels.
 * Pov hats are not in use.
 * in clutch_mode == 2 (down), support for keyboard events (F1 ... F12) and mouse control.
 
-## Bluetooth 3.0 doesn't support BLE, so ... moving to 4.0
+* Changed the library [BLE Combo](https://github.com/Georgegipa/ESP32-BLE-Combo/) to support Gamepad. Use [My Fork](https://github.com/juanmcasillas/ESP32-BLE-Combo) in order to get the thing working.
+## Arduino setup.
 
-https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
-https://github.com/Georgegipa/ESP32-BLE-Combo/tree/master/examples/SendKeyStrokes
-
-To upload, ensure the CLUTCH switch is on 0 (no light) or you can't upload the sketch.
-Use NodeMCU-32S (ESP32) board version to do the work
-
+* Use [These drivers for the ESP32](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) on Win 10
+* To upload, ensure the CLUTCH switch is on 0 (no light) or you can't upload the sketch.
+* Use NodeMCU-32S (ESP32) board version to do the work
 
 ## ExceptionDecoder & SPIFFS Image Downloader
 
@@ -105,6 +104,8 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 
 <img src="img/tapa.png"></img>
 
+```
+
 | ITEM  |   QUANTITY    | PINS  | TOTAL PINS |
 |-------|---------------|-------|-----------:|
 |LEVC   | 2             | 1     |          2 |
@@ -177,12 +178,6 @@ MAX 32 inputs !!!
 CLUTCH mode:
     16 buttons x 2 = 32 inputs
     
-
-
-
-
-
-
 BOX: 200x110x65
 Lever: 74 x 54 x 12 mm
 Lever_Cover: 60 x 130 x 40 mm
@@ -192,7 +187,7 @@ POT:    16x25
 BUT:    19
 LEVC:   20x50
 LEV:    12
-
+```
 
 ## IL2 Minimum Controls
 
@@ -227,7 +222,7 @@ Instrument Lights
 Super Charger Stage Toggle
 Engine Select
 
-### The BLE profile
+### The BLE profile (this has been changed due the combo mode)
 
 ```
  0x05, 0x01,              // USAGE_PAGE (Generic Desktop)
@@ -285,58 +280,3 @@ exports.report = new Uint8Array([
   0xc0 ]                           // END_COLLECTION
 );
 ```
-
-
-Interface 0 HID Report Descriptor Joystick
-Item Tag (Value) Raw Data
-Usage Page (Generic Desktop) 05 01
-Usage (Joystick) 09 04
-Collection (Application) A1 01
-Usage (Pointer) 09 01
-Collection (Physical) A1 00
-Usage (X) 09 30
-Usage (Y) 09 31
-Usage (Z) 09 32
-Usage (Rx) 09 33
-Usage (Ry) 09 34
-Usage (Rz) 09 35
-Usage (Dial) 09 37
-Usage (Slider) 09 36
-Logical Minimum (0) 15 00
-Logical Maximum (4095) 26 FF 0F
-Report Size (16) 75 10
-Report Count (8) 95 08
-Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 02
-End Collection C0
-Usage Page (Button) 05 09
-Usage Minimum (Button 1) 19 01
-Usage Maximum (Button 32) 29 20
-Logical Minimum (0) 15 00
-Logical Maximum (1) 25 01
-Report Size (1) 75 01
-Report Count (32) 95 20
-Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 02
-Usage Page (Generic Desktop) 05 01
-Usage (Hat Switch) 09 39
-Logical Maximum (7) 25 07
-Physical Minimum (0) 35 00
-Physical Maximum (315) 46 3B 01
-Unit Exponent (0) 55 00
-Unit (Eng Rot: deg^4) 65 44
-Report Size (4) 75 04
-Report Count (1) 95 01
-Input (Data,Var,Abs,NWrp,Lin,Pref,Null,Bit) 81 42
-Unit (None) 65 00
-Report Count (1) 95 01
-Report Size (4) 75 04
-Input (Cnst,Var,Abs,NWrp,Lin,Pref,NNul,Bit) 81 03
-Collection (Logical) A1 02
-Usage Page (Vendor-Defined 1) 06 00 FF
-Usage (Vendor-Defined 1) 09 01
-Logical Minimum (0) 15 00
-Logical Maximum (255) 26 FF 00
-Report Size (8) 75 08
-Report Count (17) 95 11
-Feature (Data,Var,Abs,NWrp,Lin,Pref,NNul,NVol,Bit) B1 02
-End Collection C0
-End Collection C0
