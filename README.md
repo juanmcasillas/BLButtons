@@ -150,7 +150,7 @@ CLUTCH (7-2=5)
 | 34    | POT_4 (rightmost)     | CH_7 ADC1            |
 |-------|-----------------------|----------------------|
 | 15    | CLUTCH_1              |                      |
-| 2     | CLUTCH_2              |                      |
+| 2     | CLUTCH_2              | low or won't flash   |
 |-------|-----------------------|----------------------|
 | 4     | ROW_0                 | Pulled up            |
 | 16    | ROW_1                 | Connected to LED     |
@@ -280,3 +280,5 @@ exports.report = new Uint8Array([
   0xc0 ]                           // END_COLLECTION
 );
 ```
+
+NANO SERIAL: Solved using ATmega328P (Old Bootloader)...
