@@ -3,50 +3,15 @@
 // installed from Library Manager
 // on nano, rx 8, tx 9 allways.
 // this is the part from NANO (sender)
-#include <AltSoftSerial.h>
-
 
 #define RELEASE 1
 // #define DEBUG 1
 
-#ifndef RELEASE
-char line[128]; // for debug
-#endif
+#include <Arduino.h>
+#include <AltSoftSerial.h>
+#include "bltools.h"
 
-
-// NANO lines are: 
-/*
-    20 lines, so I need 
-
-    D9 Serial TX
-    D12
-    D11
-    D10
-    D9
-    D8
-    D7
-    D6
-    D5
-    D4
-    D3
-    D2
-    D13
-    A0
-    A1
-    A2
-    A3
-    A4
-    A5
-    A6 <only analog>
-    A7 <only analog>
-*/
-//32 bits, each position means the button.
-//D0,D1-D13,A0-A8
-
-#define SERIAL_SPEED 57600
 AltSoftSerial altSerial;
-unsigned long BUTTONS;
-unsigned long PREV_BUTTONS;
 #define NUM_INPUTS 32
 
 // POS in BUTTONS map (0-32) if 0, don't configure it
@@ -66,40 +31,9 @@ unsigned char INPUT_PINS[] = {  0,  0,  2,  3,  4,  5,  6,  7,
                                 0,  0,  0,  0,  0 , 0,  0,  0  };
 
 
-unsigned long  set_bit(unsigned long pos, unsigned long val)  {
-    unsigned long int mask = (unsigned long)1 << pos;
-
-    BUTTONS = (BUTTONS & ~mask) |  (val << pos);
-
-    #ifndef RELEASE
-    #ifdef DEBUG
-        memset(line, 0, 128);
-        sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, BUTTONS, mask);
-        Serial.println(line);
-    #endif
-    #endif
-    
-    return (BUTTONS);
-}
-
-uint8_t get_bit(unsigned long pos) {
-    uint8_t value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
-    return(value);
-}
-
-#ifndef RELEASE
-void print_state() {
-    Serial.println("\n----------------------------");
-    for (int i=1; i<=32; i++) {
-        memset(line, 0, 128);
-        sprintf(line, "input_%d: %d", i, get_bit(i));
-        Serial.println(line);
-    }
-}
-#endif
-
-
 void setup() {
+     /// @brief  init all the devices as INPUT_PULLUP, so if 0, are active
+
      for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
             #ifndef RELEASE
@@ -117,25 +51,12 @@ void setup() {
     Serial.println("NanoWriter Started - writting on D9");
 #endif
     altSerial.begin(SERIAL_SPEED);
-    delay(1000);    
+    delay(500);    
 }
 
-#define PACKET_HEADER 0xDE
-#define PACKET_FOOTER 0xAD
-#define PACKET_SIZE 6 
-
-struct serial_package_s {
-    uint8_t header;
-    unsigned long data;
-    uint8_t footer;
-} serial_package_default = { PACKET_HEADER, 0, PACKET_FOOTER};
-
-typedef serial_package_s serial_package_t;
-serial_package_t PACKET = serial_package_default;
 
 void loop() {
  
-
     PREV_BUTTONS = BUTTONS;
     
     for (int i=0; i< NUM_INPUTS; i++) {
@@ -162,7 +83,6 @@ void loop() {
         #endif
         PACKET.data = BUTTONS;
         altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // this says 12.
-        Serial.println(sizeof( PACKET ) );
     }
     delay(100);
 }
