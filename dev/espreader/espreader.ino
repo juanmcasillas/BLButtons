@@ -15,17 +15,25 @@ HardwareSerial DriverPort( 1 );
 unsigned long BUTTONS;
 unsigned long PREV_BUTTONS;
 
-unsigned long set_bit(unsigned char pos, unsigned char val)  {
-    unsigned long mask = 1L << pos;
-    BUTTONS = (BUTTONS & ~mask) | (val << pos);
+unsigned long  set_bit(unsigned long pos, unsigned long val)  {
+    unsigned long int mask = (unsigned long)1 << pos;
+
+    BUTTONS = (BUTTONS & ~mask) |  (val << pos);
+
+    #ifndef RELEASE
+        memset(line, 0, 128);
+        sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, BUTTONS, mask);
+        Serial.println(line);
+    #endif
+    
     return (BUTTONS);
 }
 
-byte get_bit(unsigned char pos) {
-    unsigned long mask = 1L << pos;
-    byte value = ( 1 ? (BUTTONS >> pos) & 1L : 0);
+byte get_bit(unsigned long pos) {
+    byte value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
     return(value);
 }
+
 
 #ifndef RELEASE
 void print_state() {
@@ -48,18 +56,38 @@ void setup() {
 }
 
 
+struct serial_package_s {
+    byte header;
+    unsigned long data;
+    byte footer;
+} serial_package_default = { 0xDE, 0, 0xAD};
+
+typedef serial_package_s serial_package_t;
+serial_package_t PACKET = serial_package_default;
 
 
 
 
 void loop() {
+    
     PREV_BUTTONS = BUTTONS;
-    if ( DriverPort.available() >= sizeof(BUTTONS) ) {
-        char data[4];
-        for (int i=0; i< sizeof(BUTTONS); i++) {
+    if ( DriverPort.available() >= sizeof(serial_package_t) ) {
+        char data[sizeof(serial_package_t)]; // size of serial_package_s;
+
+        for (int i=0; i< sizeof(serial_package_t); i++) {
             data[i] = DriverPort.read();
         }
-        BUTTONS = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+        memcpy(&PACKET, data, sizeof(serial_package_t));
+        if (PACKET.header == 0xDE && PACKET.footer == 0xAD) {
+            BUTTONS = PACKET.data;
+        }
+        else {
+        }
+            memset(line, 0, 128);
+            sprintf(line, "%x, %x, %x, %x, %x, %x",data[0],data[1],data[2],data[3],data[4],data[5]);
+            Serial.println(line);
+
+        //BUTTONS = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
     }
     if (PREV_BUTTONS != BUTTONS) {
         #ifndef RELEASE

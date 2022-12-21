@@ -59,15 +59,22 @@ unsigned char INPUT_PINS[] = {  0,  0,  2,  3,  4,  5,  6,  7,
                                 0,  0,  0,  0,  0 , 0,  0,  0  };
 
 
-unsigned long set_bit(unsigned char pos, unsigned char val)  {
-    unsigned long mask = 1L << pos;
-    BUTTONS = (BUTTONS & ~mask) | (val << pos);
+unsigned long  set_bit(unsigned long pos, unsigned long val)  {
+    unsigned long int mask = (unsigned long)1 << pos;
+
+    BUTTONS = (BUTTONS & ~mask) |  (val << pos);
+
+    #ifndef RELEASE
+        memset(line, 0, 128);
+        sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, BUTTONS, mask);
+        Serial.println(line);
+    #endif
+    
     return (BUTTONS);
 }
 
-byte get_bit(unsigned char pos) {
-    unsigned long mask = 1L << pos;
-    byte value = ( 1 ? (BUTTONS >> pos) & 1L : 0);
+byte get_bit(unsigned long pos) {
+    byte value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
     return(value);
 }
 
@@ -75,6 +82,7 @@ byte get_bit(unsigned char pos) {
 void print_state() {
     Serial.println("\n----------------------------");
     for (int i=1; i<=32; i++) {
+        memset(line, 0, 128);
         sprintf(line, "input_%d: %d", i, get_bit(i));
         Serial.println(line);
     }
@@ -87,7 +95,7 @@ void setup() {
         if (INPUT_PINS[i] != 0) {
             #ifndef RELEASE
                 memset(line, 0, 128);
-                sprintf(line,"Init pin: %d",INPUT_PINS[i]);
+                sprintf(line,"Init pin: %d [GPIO %d]",INPUT_PINS[i]);
                 Serial.println(line);
             #endif
             pinMode(INPUT_PINS[i], INPUT_PULLUP);        
@@ -103,7 +111,14 @@ void setup() {
     delay(1000);    
 }
 
+struct serial_package_s {
+    byte header;
+    unsigned long data;
+    byte footer;
+} serial_package_default = { 0xDE, 0, 0xAD};
 
+typedef serial_package_s serial_package_t;
+serial_package_t PACKET = serial_package_default;
 
 void loop() {
  
@@ -113,12 +128,15 @@ void loop() {
     for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
             int input_value = digitalRead(INPUT_PINS[i]);
-            set_bit(i, ! input_value);
+            input_value = ( 1 ? input_value == 0: 0);  // PULLUP, 0 is active (GND)
+            set_bit(i, input_value);
+
             #ifndef RELEASE
-                if (!input_value) {
+                if (input_value) {
                     memset(line, 0, 128);
-                    sprintf(line,"button pressed: %d, %d", i, INPUT_PINS[i]);
+                    sprintf(line,"button pressed: %d, [GPIO %d]", i, INPUT_PINS[i]);
                     Serial.println(line);
+                    Serial.println(BUTTONS);
                 }
             #endif
         }
@@ -129,7 +147,8 @@ void loop() {
         #ifndef RELEASE
         print_state();
         #endif
-        altSerial.write( (uint8_t *) &BUTTONS, sizeof( BUTTONS ) );
+        PACKET.data = BUTTONS;
+        altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // 6
     }
     delay(100);
 }
