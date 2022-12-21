@@ -189,8 +189,72 @@ TOTALS:
              CLK/DT    2 signals on GPIO5, GPIO12
   5x buttons:          5 signals in the keypad button.
 
+## after implementing the Serial bridge between Arduino Nano & ESP32
 
+So:
+  Mode selector: 12 Signals from 15 available using GPIO27,GPIO26 [3 available, frees 4 GPIO[4,16,17,18,19,23,32], used on Serial]
+  5 3-way: (10 signals, using 8 in one expansor I2C using 2 in the other expansor.
+  6 2-way: (6 signals, using 6 in the second expansor)
+  6 encoders: 
+        - 1x6 signals in a keypad arrangement of 4x4 
+        - 2x4 signals in the third expansor (8 signals) CLK/DT
+        - 4x1 signals in GPIO5, GPIO12, 
 
+  1x  Mode:           12 signals, 2 GPIO [Serial]
+  6x  3-way:          10 signals, 2 GPIO (SCL,SDA)
+                       2 signals, 2 GPIO [Serial]
+  6x  2-way:           6 signals
+  6x  encoders: SW:       6 signals in the keypad button, 4x4, 8 GPIO
+                CLK/DT    8 signals in the third expansor (SCL,SDA)
+                CLK/DT    2 signals on GPIO5, GPIO12
+                CLK/DT    2 signals on GPI23, GPIO32
+  6x buttons:          6 signals in the keypad button.
+
+                       ?? 1 signal 2 GPIO available [Serial]
+                       ?? 4 signal available on keypad.
+ 
+
+  4 free gpios mean instead 3x3 (9) 4x4 (16) -> 7 more buttons !!! [13,14]
+
+|-------|-----------------------|----------------------|
+| PIN   | TO                    | NOTES                |
+|-------|-----------------------|---------------------:|
+Button matrix: 16 values, 4x4 matrix
+| 13    | COL_0                 |                      |
+| 14    | COL_1                 | Boot Fail if HIGH    |
+| 16    | COL_2                 | Connected to LED     |
+| 17    | COL_3                 |                      |
+| 18    | ROW_0                 |                      |
+| 19    | ROW_1                 |                      |
+| 25    | ROW_2                 |                      |
+| 33    | ROW_3                 | CH_4 ADC1 together   |
+|-------|-----------------------|----------------------|
+MODE_SELECTOR = 12 values, 12 signals, 2 GPIO [Serial]
+| 27    | RX                    |                      |
+| 26    | TX                    |                      |
+|-------|-----------------------|----------------------|
+Expansors I2C
+|-------|-----------------------|----------------------|
+| 21    | SDA                   |                      |
+| 22    | SCL                   |                      |
+|-------|-----------------------|----------------------|
+Extra encoders 
+| 5     | CLK                   | Boot Fail if HIGH    |
+| 12    | DT                    |                      | 
+| 23    | CLK                   |                      |
+| 32    | DT                    | CH_5 ADC1            |
+|-------|-----------------------|----------------------|
+|       | free pins             |                      |
+|-------|-----------------------|----------------------|
+|-------|-----------------------|----------------------|
+| 0     |                       | not use              |
+|-------|-----------------------|----------------------|
+maybe use the 5th element.
+| 2     |                       | low or won't flash   | 
+| 4     |                       | Pulled up            |
+| 15    |                       |                      |
+| 34    |                       | CH_7 ADC1 only IN    | 
+| 35    |                       | CH_6 ADC1 only IN    |
 
 https://github.com/AM-STUDIO/32-FUNCTION-BUTTON-BOX/blob/master/ARDUINO_BUTTON_BOXV2.ino
 https://forum.arduino.cc/t/sketch-para-cinco-encoders-con-promicro/994954
@@ -377,4 +441,5 @@ First off all, we need to do a voltage adaptation from 5V to 3.3V in ESP:
 [D10 INPUT] NANO->D10---------------->[ PUSH BUTTON ]------------------+
                                                                        |
             NANO->GND--------------------------------------------------|
+```
 
