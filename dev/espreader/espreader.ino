@@ -29,8 +29,8 @@ unsigned long  set_bit(unsigned long pos, unsigned long val)  {
     return (BUTTONS);
 }
 
-byte get_bit(unsigned long pos) {
-    byte value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
+uint8_t get_bit(unsigned long pos) {
+    uint8_t value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
     return(value);
 }
 
@@ -51,43 +51,67 @@ void setup() {
     Serial.begin(115200);
     Serial.println("ESPreader Started");
 #endif
-    DriverPort.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX );
+    DriverPort.begin(57600, SERIAL_8N1, PIN_RX, PIN_TX );
     delay(1000);
 }
 
 
+// Arduino sends 6 bytes (the size of the structure ... there) but here, it 
+// doubles it (due its a 64 bit architecture, instead of 32). It "works" 
+// because mixes the first package with the second. Fixed the size, it 
+// works fine.
+// define packet size ... in bytes.
+
+#define PACKET_HEADER 0xDE
+#define PACKET_FOOTER 0xAD
+#define PACKET_SIZE 6 
+
 struct serial_package_s {
-    byte header;
+    uint8_t header;
     unsigned long data;
-    byte footer;
-} serial_package_default = { 0xDE, 0, 0xAD};
+    uint8_t footer;
+} serial_package_default = { PACKET_HEADER, 0, PACKET_FOOTER};
 
 typedef serial_package_s serial_package_t;
 serial_package_t PACKET = serial_package_default;
 
 
 
-
 void loop() {
     
     PREV_BUTTONS = BUTTONS;
-    if ( DriverPort.available() >= sizeof(serial_package_t) ) {
-        char data[sizeof(serial_package_t)]; // size of serial_package_s;
+    if ( DriverPort.available() >= PACKET_SIZE ) {
+        uint8_t data[6]; // size of serial_package_s;
 
-        for (int i=0; i< sizeof(serial_package_t); i++) {
+        for (int i=0; i< PACKET_SIZE; i++) {
             data[i] = DriverPort.read();
         }
-        memcpy(&PACKET, data, sizeof(serial_package_t));
+        PACKET.header = data[0];
+        PACKET.data   = data[1] | (data[2] << 8) | (data[3] << 16) | (data[4] << 24);
+        PACKET.footer = data[5];
+
+        // memset(line, 0, 128);
+        // sprintf(line, "%x, %x, %x, %x, %x, %x",data[0],data[1],data[2],data[3],data[4],data[5]);
+        // Serial.println(line);         
+
+        // memset(line, 0, 128);
+        // sprintf(line, "%x, %lu, %x",PACKET.header, PACKET.data, PACKET.footer);
+        // Serial.println(line);      
+
+        // Serial.println(sizeof(uint8_t));    
+        // Serial.println(sizeof(PACKET));    
+        // Serial.println(sizeof(serial_package_s));    
+        // Serial.println(sizeof(uint8_t));
+        
         if (PACKET.header == 0xDE && PACKET.footer == 0xAD) {
             BUTTONS = PACKET.data;
         }
         else {
+            // some problem with the serial port.
         }
-            memset(line, 0, 128);
-            sprintf(line, "%x, %x, %x, %x, %x, %x",data[0],data[1],data[2],data[3],data[4],data[5]);
-            Serial.println(line);
 
-        //BUTTONS = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+
+        
     }
     if (PREV_BUTTONS != BUTTONS) {
         #ifndef RELEASE
