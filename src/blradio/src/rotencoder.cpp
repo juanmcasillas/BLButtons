@@ -40,21 +40,37 @@ RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, uint8_t BT
 
 void RotaryEncoder::service() {
 
-    changed = i2c_exp->readEncoderValue(pinA, pinB, &value);
-    if (first_time) {
-        changed = false;
-        value = 0;
-        previous_value = 0;
-        first_time = 0;
+    if (i2c_exp != NULL) {
+        changed = i2c_exp->readEncoderValue(pinA, pinB, &value);
+    } else {
+        unsigned char stateChannelA = this->digitalRead(pinA);
+        unsigned char stateChannelB = this->digitalRead(pinB);
+        if (stateChannelA == previous_state_a)  {
+            changed = true;
+            if (stateChannelB) {
+                // B HIGH, CW
+                value++;
+            }
+            else {
+                // B LOW, CWW 
+                value--;
+            }
+        }
+         previous_state_a = stateChannelA;   // Guardar valores para siguiente
     }
-
     uint8_t current_state_c = this->digitalRead(pinBTN); // BTN
 	if (current_state_c!=previous_button){
       previous_button = current_state_c;
       button = (current_state_c == active_config ? RotaryEncoder::PRESSED  : RotaryEncoder::NONE);
 	}
 
-
+    // cleanup the first time
+    if (first_time) {
+        changed = false;
+        value = 0;
+        previous_value = 0;
+        first_time = 0;
+    }
 
 }
 
@@ -71,6 +87,7 @@ void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN, bool acti
     button = RotaryEncoder::NONE;
     value = 0;
     previous_value = 0;
+    previous_state_a = 0;
 }
 
 

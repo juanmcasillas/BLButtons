@@ -71,6 +71,7 @@ protected:
     long    value;
     long    previous_value;
     uint8_t first_time = 1;
+    unsigned char previous_state_a; // for "normal" rotary
  
 };
 
