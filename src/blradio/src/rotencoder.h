@@ -6,7 +6,8 @@
 /// @version 0.1
 /// @date 2022/12/22
 ///
-///  rotary encoder wrapper. Only support left right and button
+/// rotary encoder wrapper. Only support left, right and button now also
+/// value. Note that this version is very coupled to the PCF8574 code.
 /// 
 /// @copyright Copyright (c) 12/22/2022 Juan M. Casillas <juanm.casillas@gmail.com>
 ///

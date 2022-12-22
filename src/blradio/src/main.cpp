@@ -69,14 +69,18 @@
 #include <Arduino.h>
 #include <PCF8574.h>
 #include <Ticker.h>
+#include <HardwareSerial.h>
 #include "rotencoder.h"
+#include "bltools.h"
 
 #define EXPANDER_ADDESS 0x23
-
-char line[128];
 PCF8574 pcf8574(EXPANDER_ADDESS);
 RotaryEncoder *encoder;
 Ticker periodicTicker;
+
+HardwareSerial DriverPort( 1 );
+#define PIN_RX 27
+#define PIN_TX 26
 
 
 void timer_isr() {
@@ -90,10 +94,9 @@ void setup() {
     Serial.begin (115200);
     Serial.println("i2cTEST Started");
     #endif
+    // serial port
+    DriverPort.begin(SERIAL_SPEED, SERIAL_8N1, PIN_RX, PIN_TX );
     delay(500);
-
-
-    
 
     // encoder pins
     pcf8574.pinMode(P0, INPUT_PULLUP);
@@ -131,16 +134,46 @@ long prev_value = 0;
 
 void loop() {
 
+    PREV_BUTTONS = BUTTONS;
+    // 
+    // read the data. This must be encapsulated in a function.
+    // 
+    if ( DriverPort.available() >= PACKET_SIZE ) {
+        uint8_t data[6]; // size of serial_package_s;
+
+        for (int i=0; i< PACKET_SIZE; i++) {
+            data[i] = DriverPort.read();
+        }
+        PACKET.header = data[0];
+        PACKET.data   = data[1] | (data[2] << 8) | (data[3] << 16) | (data[4] << 24);
+        PACKET.footer = data[5];
+
+        if (PACKET.header == 0xDE && PACKET.footer == 0xAD) {
+            BUTTONS = PACKET.data;
+        }
+        else {
+            // some problem with the serial port.
+        }
+    }
+
+    if (PREV_BUTTONS != BUTTONS) {
+        #ifndef RELEASE
+        print_state();
+        #endif
+    }
+
+    // the IC part here.
     uint8_t p0 = pcf8574.digitalRead(P0);
     uint8_t p1 = pcf8574.digitalRead(P1);
     uint8_t p2 = pcf8574.digitalRead(P2);
 
 
-    p0 = ( p0 == 0 ? 1 : 0);
+    p0 = ( p0 == 0 ? 1 : 0); // not wired
     p1 = ( p1 == 0 ? 1 : 0);
-    p2 = ( p2 == 0 ? 1 : 0);
+    p2 = ( p2 == 0 ? 1 : 0); 
 
     #ifndef RELEASE
+    // not connected in hw
     if (p0) {
         memset(line, 0, 128);
         sprintf(line,"button pressed: %d, [GPIO %d]", 0, p0);
@@ -162,7 +195,6 @@ void loop() {
             Serial.println("Encoder Button pressed");
             break;
     }
-
 
     switch (encoder->getDirection()) {
         case RotaryEncoder::RIGHT:
