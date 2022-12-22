@@ -55,11 +55,19 @@ public:
 
   } Button;
 
+typedef enum Direction_e {
+    None  = 0,
+    CW = 1,
+    CCW = 2
+  } Direction;
+
 public:
   ClickEncoderI2C(PCF8574 *i2c_exp, uint8_t A, uint8_t B, uint8_t BTN = -1, uint8_t stepsPerNotch = 1, bool active = LOW);
 
   void service(void);
   int16_t getValue(void);
+  Direction getDirection(void);
+
 
 #ifndef WITHOUT_I2C_BUTTON
 public:
@@ -115,6 +123,7 @@ private:
   unsigned long lastButtonCheck = 0;
 #endif
   PCF8574 *_i2c_exp;
+  Direction _direction;
 };
 
 // ----------------------------------------------------------------------------

@@ -20,7 +20,8 @@
 #define SERIAL_SPEED 57600
 
 #ifndef RELEASE
-extern char line[128]; // for debug
+#define LINE_SIZE 128
+extern char line[LINE_SIZE]; // for debug
 extern void print_state();
 #endif
 

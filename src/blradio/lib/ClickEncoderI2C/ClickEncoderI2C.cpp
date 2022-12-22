@@ -54,6 +54,7 @@ ClickEncoderI2C::ClickEncoderI2C(PCF8574 *i2c_exp, uint8_t A, uint8_t B, uint8_t
 {
   uint8_t configType = (pinsActive == LOW) ? INPUT_PULLUP : INPUT;
   _i2c_exp = i2c_exp;
+  _direction = ClickEncoderI2C::None;
   
   _i2c_exp->pinMode(pinA, configType);
   _i2c_exp->pinMode(pinB, configType);
@@ -80,6 +81,7 @@ void ClickEncoderI2C::service(void)
 {
   bool moved = false;
   unsigned long now = millis();
+  _direction = ClickEncoderI2C::None;
 
   if (accelerationEnabled) { // decelerate every tick
     acceleration -= ENC_I2C_ACCEL_DEC;
@@ -102,10 +104,12 @@ void ClickEncoderI2C::service(void)
 
   if (_i2c_exp->digitalRead(pinA) == pinsActive) {
     last |= 2;
+    _direction = ClickEncoderI2C::CW;
   }
 
   if (_i2c_exp->digitalRead(pinB) == pinsActive) {
     last |= 1;
+    _direction = ClickEncoderI2C::CCW;
   }
 
   uint8_t tbl = pgm_read_byte(&table[last]);
@@ -118,10 +122,12 @@ void ClickEncoderI2C::service(void)
 
   if (_i2c_exp->digitalRead(pinA) == pinsActive) {
     curr = 3;
+    _direction = ClickEncoderI2C::CW;
   }
 
   if (_i2c_exp->digitalRead(pinB) == pinsActive) {
     curr ^= 1;
+    _direction = ClickEncoderI2C::CCW;
   }
 
   int8_t diff = last - curr;
@@ -199,6 +205,11 @@ void ClickEncoderI2C::service(void)
 }
 
 // ----------------------------------------------------------------------------
+
+ClickEncoderI2C::Direction ClickEncoderI2C::getDirection(void)
+{
+  return _direction;
+}
 
 int16_t ClickEncoderI2C::getValue(void)
 {

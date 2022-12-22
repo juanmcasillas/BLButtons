@@ -8,11 +8,11 @@ serial_package_s serial_package_default = { PACKET_HEADER, 0, PACKET_FOOTER};
 serial_package_t PACKET = serial_package_default;
 
 #ifndef RELEASE
-char line[128]; // for debug
+char line[LINE_SIZE]; // for debug
 void print_state() {
     Serial.println("\n----------------------------");
     for (int i=1; i<=32; i++) {
-        memset(line, 0, 128);
+        memset(line, 0, LINE_SIZE);
         sprintf(line, "input_%d: %d", i, get_bit(i));
         Serial.println(line);
     }
@@ -26,7 +26,7 @@ unsigned long set_bit(unsigned long pos, unsigned long val)  {
 
     #ifndef RELEASE
     #ifdef DEBUG
-        memset(line, 0, 128);
+        memset(line, 0, LINE_SIZE);
         sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, BUTTONS, mask);
         Serial.println(line);
     #endif
@@ -36,7 +36,7 @@ unsigned long set_bit(unsigned long pos, unsigned long val)  {
 }
 
 uint8_t get_bit(unsigned long pos) {
-    uint8_t value = ( 1 ? (BUTTONS >> pos) & 1UL : 0);
+    uint8_t value = ( (BUTTONS >> pos) & 1UL ? 1 : 0);
     return(value);
 }
 

@@ -69,22 +69,21 @@
 #include <Arduino.h>
 #include <PCF8574.h>
 #include <Ticker.h>
-
-#include "ClickEncoderI2C.h"
+#include "rotencoder.h"
 
 #define EXPANDER_ADDESS 0x23
 
 char line[128];
 PCF8574 pcf8574(EXPANDER_ADDESS);
-ClickEncoderI2C *encoder;
-int16_t last, value;
+RotaryEncoder *encoder;
 Ticker periodicTicker;
 
-void  timerIsr()
-{
-    encoder->service();
 
+void timer_isr() {
+    encoder->service();
 }
+
+
 
 void setup() {
     #ifndef RELEASE	  
@@ -100,20 +99,18 @@ void setup() {
     pcf8574.pinMode(P0, INPUT_PULLUP);
     pcf8574.pinMode(P1, INPUT_PULLUP);
     pcf8574.pinMode(P2, INPUT_PULLUP);
-    pcf8574.pinMode(P3, INPUT_PULLUP);
-    pcf8574.pinMode(P4, INPUT_PULLUP);
-    pcf8574.pinMode(P5, INPUT_PULLUP);
+    //pcf8574.pinMode(P3, INPUT_PULLUP);
+    //pcf8574.pinMode(P4, INPUT_PULLUP);
+    //pcf8574.pinMode(P5, INPUT_PULLUP);
     pcf8574.pinMode(P6, INPUT_PULLUP);
     pcf8574.pinMode(P7, INPUT_PULLUP);
 
-    encoder = new ClickEncoderI2C(&pcf8574, P5, P4, P3); // CLK(A), DT(B), SW
+    encoder = new RotaryEncoder(&pcf8574, P5, P4, P3); // CLK(A), DT(B), SW
+
     // Interval in microsecs
-    periodicTicker.attach_ms(1, timerIsr); // 1000 microseconds -> 1 milisecond
-
-    last = -1;
-
     // Set low latency with this method or uncomment LOW_LATENCY define in the library
     // Needed for encoder
+
     pcf8574.setLatency(0);
     // Start library
     #ifndef RELEASE	  
@@ -123,25 +120,25 @@ void setup() {
         Serial.println("pcf8574 lib ko");
     }
     #endif
-
-
+    
+    periodicTicker.attach_ms(1, timer_isr);
 
 }
 
 
 
-void loop() {
+long prev_value = 0;
 
-    value += encoder->getValue();
+void loop() {
 
     uint8_t p0 = pcf8574.digitalRead(P0);
     uint8_t p1 = pcf8574.digitalRead(P1);
     uint8_t p2 = pcf8574.digitalRead(P2);
 
 
-    p0 = ( 1 ? p0 == 0: 0);
-    p1 = ( 1 ? p1 == 0: 0);
-    p2 = ( 1 ? p2 == 0: 0);
+    p0 = ( p0 == 0 ? 1 : 0);
+    p1 = ( p1 == 0 ? 1 : 0);
+    p2 = ( p2 == 0 ? 1 : 0);
 
     #ifndef RELEASE
     if (p0) {
@@ -160,30 +157,29 @@ void loop() {
         Serial.println(line);
     }
 
-    if (value != last) {
-        last = value;
-        memset(line, 0, 128);
-        sprintf(line,"encoder value: %d", value);
-        Serial.println(value);
+    switch (encoder->getButton()) {
+        case RotaryEncoder::PRESSED:
+            Serial.println("Encoder Button pressed");
+            break;
     }
 
-    ClickEncoderI2C::Button b = encoder->getButton();
-    if (b != ClickEncoderI2C::Open) {
-        Serial.print("Button: ");
-        #define VERBOSECASE(label) case label: Serial.println(#label); break;
-        switch (b) {
-        VERBOSECASE(ClickEncoderI2C::Pressed);
-        VERBOSECASE(ClickEncoderI2C::Held)
-        VERBOSECASE(ClickEncoderI2C::Released)
-        VERBOSECASE(ClickEncoderI2C::Clicked)
-        case ClickEncoderI2C::DoubleClicked:
-            Serial.println("ClickEncoderI2C::DoubleClicked");
-            encoder->setAccelerationEnabled(!encoder->getAccelerationEnabled());
-            Serial.print("  Acceleration is ");
-            Serial.println((encoder->getAccelerationEnabled()) ? "enabled" : "disabled");
+
+    switch (encoder->getDirection()) {
+        case RotaryEncoder::RIGHT:
+            Serial.println("Encoder CW (Right)");
             break;
-        }
-    }    
+        case RotaryEncoder::LEFT:
+            Serial.println("Encoder CCW (Left)");
+            break;
+
+    }
+    long value = encoder->getValue();
+    
+    if (value != prev_value) {
+        Serial.println(value);
+        prev_value = value;
+    }
+
 
     #endif
     delay(100);
