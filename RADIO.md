@@ -443,3 +443,12 @@ First off all, we need to do a voltage adaptation from 5V to 3.3V in ESP:
             NANO->GND--------------------------------------------------|
 ```
 
+
+to use 2.0.5 core instead 1.0.6
+Only can use 1.0.6 due the rest is compiling from 2.x.x (mac os 10.14 >)
+https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+current
+https://dl.espressif.com/dl/package_esp32_index.json
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
