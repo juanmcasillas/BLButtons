@@ -216,60 +216,25 @@ So:
 
   4 free gpios mean instead 3x3 (9) 4x4 (16) -> 7 more buttons !!! [13,14]
 
-|-------|-----------------------|----------------------|
-| PIN   | TO                    | NOTES                |
-|-------|-----------------------|---------------------:|
-Button matrix: 16 values, 4x4 matrix
-| 13    | COL_0                 |                      |
-| 14    | COL_1                 | Boot Fail if HIGH    |
-| 16    | COL_2                 | Connected to LED     |
-| 17    | COL_3                 |                      |
-| 18    | ROW_0                 |                      |
-| 19    | ROW_1                 |                      |
-| 25    | ROW_2                 |                      |
-| 33    | ROW_3                 | CH_4 ADC1 together   |
-|-------|-----------------------|----------------------|
-MODE_SELECTOR = 12 values, 12 signals, 2 GPIO [Serial]
-| 27    | RX                    |                      |
-| 26    | TX                    |                      |
-|-------|-----------------------|----------------------|
-Expansors I2C
-|-------|-----------------------|----------------------|
-| 21    | SDA                   |                      |
-| 22    | SCL                   |                      |
-|-------|-----------------------|----------------------|
-Extra encoders 
-| 5     | CLK                   | Boot Fail if HIGH    |
-| 12    | DT                    |                      | 
-| 23    | CLK                   |                      |
-| 32    | DT                    | CH_5 ADC1            |
-|-------|-----------------------|----------------------|
-|       | free pins             |                      |
-|-------|-----------------------|----------------------|
-|-------|-----------------------|----------------------|
-| 0     |                       | not use              |
-|-------|-----------------------|----------------------|
-maybe use the 5th element.
-| 2     |                       | low or won't flash   | 
-| 4     |                       | Pulled up            |
-| 15    |                       |                      |
-| 34    |                       | CH_7 ADC1 only IN    | 
-| 35    |                       | CH_6 ADC1 only IN    |
+
+
+
 
 23-12-2022
 After getting al the components:
 
-
 |-------|-----------------------|----------------------|
 | PIN   | TO                    | NOTES                |
 |-------|-----------------------|---------------------:|
 Button matrix: 16 values, 4x4 matrix
 | 13    | COL_0                 |                      |
-| 14    | COL_1                 | Boot Fail if HIGH    |
-| 16    | COL_2                 | Connected to LED     |
-| 18    | ROW_0                 |                      |
-| 19    | ROW_1                 |                      |
-| 25    | ROW_2                 |                      |
+| 25    | ROW_1                 |                      |
+| 33    | ROW_2                 | CH_4 ADC1 together   |
+| 23    | ROW_3                 |                      |
+| 17    | COL_0                 |                      |
+| 18    | COL_1                 |                      |
+| 19    | COL_2                 |                      |
+| 32    | COL_3                 | CH_5 ADC1            |
 |-------|-----------------------|----------------------|
 MODE_SELECTOR = 12 values, 12 signals, 2 GPIO [Serial]
 | 27    | RX                    |                      |
@@ -280,11 +245,16 @@ Expansors I2C
 | 21    | SDA                   |                      |
 | 22    | SCL                   |                      |
 |-------|-----------------------|----------------------|
+| 2     |  2W                   | low or won't flash   | 
+| 4     |  2W                   | Pulled up            |
+| 5     |  2W                   | Boot Fail if HIGH    |
+| 12    |  2W                   | cant be pulled HIGH  | 
+| 14    |  2W                   | Boot Fail if HIGH    |
+| 15    |  2W                   |                      |
 Extra encoders 
-| 5     | CLK                   | Boot Fail if HIGH    |
-| 12    | DT                    |                      | 
-| 23    | CLK                   |                      |
-| 32    | DT                    | CH_5 ADC1            |
+| 34    |                       | CH_7 ADC1 only IN    | 
+| 35    |                       | CH_6 ADC1 only IN    |
+
 |-------|-----------------------|----------------------|
 |       | free pins             |                      |
 |-------|-----------------------|----------------------|
@@ -292,32 +262,18 @@ Extra encoders
 | 0     |                       | not use              |
 |-------|-----------------------|----------------------|
 maybe use the 5th element.
-| 17    | COL_3                 |                      |
-| 33    | ROW_3                 | CH_4 ADC1 together   |
-| 2     |                       | low or won't flash   | 
-| 4     |                       | Pulled up            |
-| 15    |                       |                      |
-| 34    |                       | CH_7 ADC1 only IN    | 
-| 35    |                       | CH_6 ADC1 only IN    |
+
+| 16    | 2W                    | Connected to LED     |
 
 
-So:
- Stock: 
-    ESP:        17 signals.
-    NANO:       15 signals.
-    Expansor:    8 signals  x 3 (24 total)
+  Mode selector: 11 Signals from 15 available using GPIO27,GPIO26Serial]
+  2 3-way in nano. (4 signals) [only 2 values]
+  6 2-way ESP32 [2,4,5,12,14,15]
+  4 encoders in the expansor (8 signals)
+  1 encoder in ESP32 [34,35]
 
-  Mode:     11 signals  NO_MATRIX
-  3-way:     2 signals  NO_MATRIX
-  2-way:     1 signals  NO_MATRIX
-  button:    1 signals  YES
-  Encoder:   3 signals  PARTIAL (only button)
-
-  Mode        [NANO,11] [NANO FREE 4]
-  Encoder x5  [ESP,15]  [ESP FREE 2]
-  3-way x2    [NANO,4]  [NANO FREE 0]
-  3-way x4    [EXPANSOR,8] [EXP1 FREE 0]
-  
+  5 buttons from encoders [left 11 buttons]
+  6 push buttons [on keypad matrix]
   
   Rotary encoder
   
@@ -332,7 +288,10 @@ So:
   CCW 
  (left)
   
-  
+  Rotary switch
+
+  central pole = GND
+  external poles = PINS
   
   
   

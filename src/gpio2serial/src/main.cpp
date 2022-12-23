@@ -59,6 +59,8 @@ void setup() {
         }
     }
     BUTTONS = 0;
+    // force send first time.
+    PREV_BUTTONS = ! BUTTONS;
 
 #ifndef RELEASE
     Serial.begin(115200);
@@ -71,7 +73,7 @@ void setup() {
 
 void loop() {
  
-    PREV_BUTTONS = BUTTONS;
+   
     
     for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
@@ -80,12 +82,14 @@ void loop() {
             set_bit(i, input_value);
 
             #ifndef RELEASE
+            #ifdef DEBUG
                 if (input_value) {
                     memset(line, 0, 128);
                     sprintf(line,"button pressed: %d, [GPIO %d]", i, INPUT_PINS[i]);
                     Serial.println(line);
                     Serial.println(BUTTONS);
                 }
+            #endif
             #endif
         }
     }
@@ -97,6 +101,7 @@ void loop() {
         #endif
         PACKET.data = BUTTONS;
         altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // this says 12.
+        PREV_BUTTONS = BUTTONS;
     }
     delay(100);
 }
