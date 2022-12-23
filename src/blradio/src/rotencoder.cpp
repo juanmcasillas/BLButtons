@@ -22,9 +22,10 @@ RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, uint8_t BTN, bool active) {
     this->BaseConstructor(A, B, BTN, active);
     this->pinMode(pinA,   configType);
     this->pinMode(pinB,   configType);
-    this->pinMode(pinBTN, configType); 
-    previous_button = this->digitalRead(pinBTN);
-
+    if (pinBTN>=0) {
+        this->pinMode(pinBTN, configType); 
+        previous_button = this->digitalRead(pinBTN);
+    }
 
 }
 
@@ -32,8 +33,10 @@ RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, uint8_t BT
     i2c_exp = _i2c_exp;
     this->BaseConstructor(A, B, BTN, active);
     i2c_exp->encoder(A,B);
-    this->pinMode(pinBTN, configType); 
-    previous_button = this->digitalRead(pinBTN);
+    if (pinBTN>=0) {
+        this->pinMode(pinBTN, configType); 
+        previous_button = this->digitalRead(pinBTN);
+    }
 
 }
 
@@ -58,11 +61,13 @@ void RotaryEncoder::service() {
         }
          previous_state_a = stateChannelA;   // Guardar valores para siguiente
     }
-    uint8_t current_state_c = this->digitalRead(pinBTN); // BTN
-	if (current_state_c!=previous_button){
-      previous_button = current_state_c;
-      button = (current_state_c == active_config ? RotaryEncoder::PRESSED  : RotaryEncoder::NONE);
-	}
+    if (pinBTN>=0) {
+        uint8_t current_state_c = this->digitalRead(pinBTN); // BTN
+        if (current_state_c!=previous_button){
+        previous_button = current_state_c;
+        button = (current_state_c == active_config ? RotaryEncoder::PRESSED  : RotaryEncoder::NONE);
+        }
+    }
 
     // cleanup the first time
     if (first_time) {
@@ -86,7 +91,8 @@ void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN, bool acti
     changed = false;
     button = RotaryEncoder::NONE;
     value = 0;
-    previous_value = 0;
+    previous_button  = 0;
+    previous_value   = 0;
     previous_state_a = 0;
 }
 

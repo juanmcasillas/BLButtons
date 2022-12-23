@@ -102,13 +102,20 @@ void setup() {
     pcf8574.pinMode(P0, INPUT_PULLUP);
     pcf8574.pinMode(P1, INPUT_PULLUP);
     pcf8574.pinMode(P2, INPUT_PULLUP);
-    //pcf8574.pinMode(P3, INPUT_PULLUP);
-    //pcf8574.pinMode(P4, INPUT_PULLUP);
+    //first example
+    //pcf8574.pinMode(P3, INPUT_PULLUP);    // set inside the code Button
+    //pcf8574.pinMode(P4, INPUT_PULLUP);     
     //pcf8574.pinMode(P5, INPUT_PULLUP);
+
+    // not needed, work the encoder, but safe.
+    pcf8574.pinMode(P3, INPUT_PULLUP);    
+    pcf8574.pinMode(P4, INPUT_PULLUP);     
+
     pcf8574.pinMode(P6, INPUT_PULLUP);
     pcf8574.pinMode(P7, INPUT_PULLUP);
 
-    encoder = new RotaryEncoder(&pcf8574, P5, P4, P3); // CLK(A), DT(B), SW
+    // encoder = new RotaryEncoder(&pcf8574, P5, P4, P3); // CLK(A), DT(B), SW
+    encoder = new RotaryEncoder(&pcf8574, P3, P4, -1); // CLK(A), DT(B), SW
 
     // Interval in microsecs
     // Set low latency with this method or uncomment LOW_LATENCY define in the library
@@ -166,27 +173,40 @@ void loop() {
     uint8_t p0 = pcf8574.digitalRead(P0);
     uint8_t p1 = pcf8574.digitalRead(P1);
     uint8_t p2 = pcf8574.digitalRead(P2);
-
+    uint8_t p6 = pcf8574.digitalRead(P6);
+    uint8_t p7 = pcf8574.digitalRead(P7);
 
     p0 = ( p0 == 0 ? 1 : 0); // not wired
     p1 = ( p1 == 0 ? 1 : 0);
     p2 = ( p2 == 0 ? 1 : 0); 
+    p6 = ( p6 == 0 ? 1 : 0); 
+    p7 = ( p7 == 0 ? 1 : 0); 
 
     #ifndef RELEASE
     // not connected in hw
     if (p0) {
         memset(line, 0, 128);
-        sprintf(line,"button pressed: %d, [GPIO %d]", 0, p0);
+        sprintf(line,"button pressed: %d, [GPIO %d]", 0, P0);
         Serial.println(line);
     }
     if (p1) {
         memset(line, 0, 128);
-        sprintf(line,"button pressed: %d, [GPIO %d]", 1, p1);
+        sprintf(line,"button pressed: %d, [GPIO %d]", 1, P1);
         Serial.println(line);
     }
     if (p2) {
         memset(line, 0, 128);
-        sprintf(line,"button pressed: %d, [GPIO %d]", 2, p2);
+        sprintf(line,"button pressed: %d, [GPIO %d]", 2, P2);
+        Serial.println(line);
+    }
+    if (p6) {
+        memset(line, 0, 128);
+        sprintf(line,"button pressed: %d, [GPIO %d]", 6, P6);
+        Serial.println(line);
+    }
+    if (p7) {
+        memset(line, 0, 128);
+        sprintf(line,"button pressed: %d, [GPIO %d]", 7, P7);
         Serial.println(line);
     }
 

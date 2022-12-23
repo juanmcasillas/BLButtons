@@ -56,7 +56,7 @@ protected:
 
     uint8_t digitalRead(uint8_t pin);
     void pinMode(uint8_t pin, uint8_t mode);
-    void BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN, bool active = LOW);
+    void BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN=-1, bool active = LOW);
 
 
     uint8_t pinA;     // CLK
