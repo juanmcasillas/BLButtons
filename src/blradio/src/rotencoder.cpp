@@ -14,9 +14,6 @@
 
 #include "rotencoder.h"
 
-
-
-
 RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, uint8_t BTN, bool active) {
     i2c_exp = NULL;
     this->BaseConstructor(A, B, BTN, active);
