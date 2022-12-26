@@ -27,6 +27,10 @@
 #include <HardwareSerial.h>
 #include <Keypad.h>        // https://github.com/Chris--A/Keypad
 
+#include <BleKeyboard.h>
+#include <BleMouse.h>
+#include <BleGamepad.h>
+
 #include "rotencoder.h"
 #include "bltools.h"
 
@@ -116,6 +120,38 @@ unsigned char NANO_BITS[] {
 #define S_SW1_2_S1  19  // G14
 #define S_SW1_1_S1  20  // G15
 
+// define the keypad signals.
+
+#define S_KP_1   21
+#define S_KP_2   22
+#define S_KP_3   23
+#define S_KP_4   24
+#define S_KP_5   25
+#define S_KP_6   26
+#define S_KP_7   27
+#define S_KP_8   28
+#define S_KP_9   29
+#define S_KP_10  30
+#define S_KP_11  31
+#define S_KP_12  32
+#define S_KP_13  33
+#define S_KP_14  34
+#define S_KP_15  35
+#define S_KP_16  36
+
+// define the rotary encoders buttons [left, right]
+
+#define S_ROT_1_LEFT  37
+#define S_ROT_1_RIGHT 38
+#define S_ROT_2_LEFT  39
+#define S_ROT_2_RIGHT 40
+#define S_ROT_3_LEFT  41
+#define S_ROT_3_RIGHT 42
+#define S_ROT_4_LEFT  43
+#define S_ROT_4_RIGHT 44
+#define S_ROT_5_LEFT  45
+#define S_ROT_5_RIGHT 46
+
 // keypad matrix.
 
 
@@ -129,6 +165,17 @@ RotaryEncoder *encoders[MAX_ROTARIES];
 #define ROT3    2
 #define ROT4    3
 #define ROT5    4
+
+#define ROT_LEFT  0
+#define ROT_RIGHT 1
+unsigned char rotenc_map[MAX_ROTARIES][2] = {
+    { S_ROT_1_LEFT, S_ROT_1_RIGHT },
+    { S_ROT_2_LEFT, S_ROT_2_RIGHT },
+    { S_ROT_3_LEFT, S_ROT_3_RIGHT },
+    { S_ROT_4_LEFT, S_ROT_4_RIGHT },
+    { S_ROT_5_LEFT, S_ROT_5_RIGHT },
+};
+
 
 // define the keypad matrix
 
@@ -149,8 +196,27 @@ uint8_t keymap[KP_ROWS][KP_COLS] = {
 };
 Keypad customKeypad = Keypad(makeKeymap(keymap), kp_rowPins, kp_colPins, KP_ROWS, KP_COLS);
 
+uint8_t keymap_signals[] = {
+    0,      // not used, only for aligment
+    S_KP_1  ,
+    S_KP_2  ,
+    S_KP_3  ,
+    S_KP_4  ,
+    S_KP_5  ,
+    S_KP_6  ,
+    S_KP_7  ,
+    S_KP_8  ,
+    S_KP_9  ,
+    S_KP_10 ,
+    S_KP_11 ,
+    S_KP_12 ,
+    S_KP_13 ,
+    S_KP_14 ,
+    S_KP_15 ,
+    S_KP_16 // not used
+};
 
-#define MAX_SIGNALS 21
+#define MAX_SIGNALS 47
 unsigned char SIGNALS[MAX_SIGNALS] = { 0 };
 unsigned char PREV_SIGNALS[MAX_SIGNALS] = { 0 };
 
@@ -176,15 +242,38 @@ void print_signals() {
 #endif 
 
 
+void send_buttons() {
+    if (bleDevice.isConnected()) {
+        for (int i=0; i<MAX_SIGNALS; i++) {
+            uint8_t button = SIGNALS[i];
+            if (button) {
+                Gamepad.press(i);
+            }
+            else {
+                Gamepad.release(i);
+            }
+        }
+        
+        Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+    }
+}
+
+
+
+
+
 void pressKey(uint8_t key) {
     // if (bleDevice.isConnected()) {
     //     Gamepad.press(key);
     // }
     #ifndef RELEASE
+    #ifdef DEBUG
         memset(line, 0, LINE_SIZE);
         sprintf(line,"key pressed: %d", key);
         Serial.println(line);
     #endif
+    #endif
+    SIGNALS[keymap_signals[key]] = 1;
 }
 
 void releaseKey(uint8_t key) {
@@ -192,11 +281,13 @@ void releaseKey(uint8_t key) {
     //     Gamepad.release(key);
     // }
     #ifndef RELEASE
+    #ifdef DEBUG
         memset(line, 0, LINE_SIZE);
         sprintf(line,"key released: %d", key);
         Serial.println(line);
     #endif
-
+    #endif
+    SIGNALS[keymap_signals[key]] = 0;
 }
 
 void keypadEvent(KeypadEvent key) {
@@ -256,7 +347,11 @@ void setup() {
 
     // the keypad matrix
     customKeypad.addEventListener(keypadEvent);
-    
+
+    // the bluetooth things
+    Keyboard.begin();
+    Mouse.begin();
+    Gamepad.begin();
 }
 
 
@@ -265,9 +360,14 @@ long prev_value = 0;
 
 void loop() {
 
-    customKeypad.getKey();  // READ BUTTON MATRIX (EVENT CALLBACK SETUP)
+   
     PREV_BUTTONS = BUTTONS;
     memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
+
+    //
+    // read the keypad custom matrix for  buttons
+    // 
+    customKeypad.getKey();  
 
     // 
     // read the data from serial This must be encapsulated in a function.
@@ -324,76 +424,45 @@ void loop() {
     SIGNALS[S_SW1_6_S1] = ( digitalRead(PIN_SW1_6_S1) == 0 ? 0 : 1 );
 
 
-
-    if (memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) {
-        print_signals();
-    }
-
-
-    // the IC part here.
-    //uint8_t p0 = pcf8574.digitalRead(ROT5_PINA);
-    //uint8_t p1 = pcf8574.digitalRead(ROT5_PINB);
-    //uint8_t p2 = pcf8574.digitalRead(P2);
-    //uint8_t p6 = pcf8574.digitalRead(P6);
-    //uint8_t p7 = pcf8574.digitalRead(P7);
-    //p0 = ( p0 == 0 ? 1 : 0); // not wired
-    //p1 = ( p1 == 0 ? 1 : 0);
-    //p2 = ( p2 == 0 ? 1 : 0); 
-    //p6 = ( p6 == 0 ? 1 : 0); 
-    // p7 = ( p7 == 0 ? 1 : 0); 
-
-    // not connected in hw
-    // if (p0) {
-    //     memset(line, 0, 128);
-    //     sprintf(line,"button pressed: %d, [GPIO %d]", 0, P0);
-    //     Serial.println(line);
-    // }
-    // if (p1) {
-    //     memset(line, 0, 128);
-    //     sprintf(line,"button pressed: %d, [GPIO %d]", 1, P1);
-    //     Serial.println(line);
-    // }
-    // if (p2) {
-    //     memset(line, 0, 128);
-    //     sprintf(line,"button pressed: %d, [GPIO %d]", 2, P2);
-    //     Serial.println(line);
-    // }
-    // if (p6) {
-    //     memset(line, 0, 128);
-    //     sprintf(line,"button pressed: %d, [GPIO %d]", 6, P6);
-    //     Serial.println(line);
-    // }
-    // if (p7) {
-    //     memset(line, 0, 128);
-    //     sprintf(line,"button pressed: %d, [GPIO %d]", 7, P7);
-    //     Serial.println(line);
-    // }
-
     for (int i=0; i< MAX_ROTARIES; i++) {
-        if (encoders[i]->getButton() == RotaryEncoder::PRESSED) {
-            #ifndef RELEASE
-                memset(line, 0, 128);
-                sprintf(line,"encoder #%d button pressed", i+1);
-                Serial.println(line);
-            #endif
-        }
+        
 
         switch (encoders[i]->getDirection()) {
             case RotaryEncoder::RIGHT:
                 #ifndef RELEASE
+                #ifdef DEBUG
                     memset(line, 0, 128);
                     sprintf(line,"encoder #%d CW (Right)", i+1);
                     Serial.println(line);
                 #endif
+                #endif
+                SIGNALS[rotenc_map[i][ROT_RIGHT]] = 1;
                 break;
             case RotaryEncoder::LEFT:
                 #ifndef RELEASE
+                #ifdef DEBUG
                     memset(line, 0, 128);
                     sprintf(line,"encoder #%d CCW (Left)", i+1);
                     Serial.println(line);
                 #endif
+                #endif
+                SIGNALS[rotenc_map[i][ROT_LEFT]] = 1;
+                break;
+            default:
+                SIGNALS[rotenc_map[i][ROT_LEFT]] = 0;
+                SIGNALS[rotenc_map[i][ROT_RIGHT]] = 0;
                 break;
         }
+    }
+
+    // send the things here
+    if (memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) {
+        #ifndef RELEASE
+        #ifdef DEBUG
+        print_signals();
+        #endif
+        #endif
+        send_buttons();
     }
     // maybe it's going to be removed
     delay(DELAY_TIME);
