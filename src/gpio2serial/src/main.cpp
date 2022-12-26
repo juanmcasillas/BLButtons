@@ -18,7 +18,7 @@
 // on nano, rx 8, tx 9 allways.
 // this is the part from NANO (sender)
 
-//#define RELEASE 1
+#define RELEASE 1
 // #define DEBUG 1
 
 #include <Arduino.h>
@@ -63,11 +63,11 @@ void setup() {
     PREV_BUTTONS = ! BUTTONS;
 
 #ifndef RELEASE
-    Serial.begin(115200);
+    Serial.begin(921600);
     Serial.println("NanoWriter Started - writting on D9");
 #endif
     altSerial.begin(SERIAL_SPEED);
-    delay(500);    
+    delay(1000); // wait for ESP32
 }
 
 

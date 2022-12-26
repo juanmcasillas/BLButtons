@@ -17,6 +17,51 @@
 // use this https://github.com/xreef/PCF8574_library/releases
 // https://github.com/khoih-prog/ESP32TimerInterrupt
 //
+// 32 (0x20)
+// default jumper connection:
+// 32 (0x20) address
+// x x x
+// x x x
+// | | | 
+// x x x
+//A0   A2
+//
+// 33 (0x21) address
+// x x x
+// |
+// x x x
+//   | | 
+// x x x
+//A0   A2
+//
+// 35 (0x23) address
+// x x x
+// | |
+// x x x
+//     |  
+// x x x
+//A0   A2
+//
+
+// our working example
+//
+// 35 (0x23) address
+// x x x
+// | |
+// x x x
+//     |  
+// x x x
+//A0   A2
+//
+
+// P0 -> push_button
+// P1 -> push_button
+// P2 -> push_button
+
+// P3 -> SW
+// P4 -> DT
+// P5 -> CLK
+
 
 // #define RELEASE 1
 //#define DEBUG 1
@@ -28,14 +73,19 @@
 #include "rotencoder.h"
 #include "bltools.h"
 
+
 Ticker periodicTicker;
+
 
 #define EXPANDER_ADDESS 0x23
 PCF8574 pcf8574(EXPANDER_ADDESS);
 
+
+
 HardwareSerial DriverPort( 1 );
 #define PIN_RX 27
 #define PIN_TX 26
+
 
 //
 // unsigned char INPUT_PINS[] = {  0,  0,  2,  3,  4,  5,  6,  7, 
@@ -87,8 +137,8 @@ HardwareSerial DriverPort( 1 );
 // rotary definitions
 #define MAX_ROTARIES 5
 RotaryEncoder *encoders[MAX_ROTARIES];
-#define ROT5_PINA 16
-#define ROT5_PINB 26 // THE SAME as PIN_TX (see setup())
+#define ROT5_PINA 35
+#define ROT5_PINB 34
 #define ROT1    0
 #define ROT2    1
 #define ROT3    2
@@ -113,7 +163,7 @@ void timer_isr() {
 
 void setup() {
     #ifndef RELEASE	  
-    Serial.begin (921600);
+    Serial.begin (115200);
     Serial.println("i2cTEST Started");
     #endif
     // serial port
@@ -121,16 +171,26 @@ void setup() {
     delay(500);
 
 
+    // PINS ARE SWAPPED IN ORDER TO WORK IN THE WIRE.
+    // p3 connected to wire B
+    // p4 connected to wire A
+    // if you invert the wires, doesn't work. Check it.
 
-    encoders[ROT1] = new RotaryEncoder(&pcf8574, P0, P1, -1);  // reversed, so change wires [due bad soldering]
+    // define the 6 encoders. 
+    // CLK(A), DT(B), SW
+    encoders[ROT1] = new RotaryEncoder(&pcf8574, P1, P0, -1);
     encoders[ROT2] = new RotaryEncoder(&pcf8574, P2, P3, -1);
     encoders[ROT3] = new RotaryEncoder(&pcf8574, P4, P5, -1);
-    encoders[ROT4] = new RotaryEncoder(&pcf8574, P6, P7, -1); 
-    encoders[ROT5] = new RotaryEncoder(ROT5_PINA, ROT5_PINB, -1); // reversed, so change wires [due bad soldering]
+    encoders[ROT4] = new RotaryEncoder(&pcf8574, P6, P7, -1);
+    encoders[ROT5] = new RotaryEncoder(ROT5_PINB, ROT5_PINA, -1);
 
-    //
+    //pinMode(ROT5_PINA,INPUT_PULLUP);
+    //pinMode(ROT5_PINB,INPUT_PULLUP);
+
+    // Interval in microsecs
     // Set low latency with this method or uncomment LOW_LATENCY define in the library
-    // Needed for i2c encoders
+    // Needed for encoder
+
     pcf8574.setLatency(0);
     // Start library
     #ifndef RELEASE	  
@@ -142,6 +202,7 @@ void setup() {
     #endif
     
     periodicTicker.attach_ms(1, timer_isr);
+
 }
 
 
@@ -244,7 +305,14 @@ void loop() {
                 break;
         }
     }
-    // maybe it's going to be removed
+
+    // long value = encoder->getValue();
+    // if (value != prev_value) {
+    //     Serial.println(value);
+    //     prev_value = value;
+    // }
+
+
     delay(100);
 }
 

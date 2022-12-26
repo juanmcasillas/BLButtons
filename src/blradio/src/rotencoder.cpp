@@ -14,19 +14,22 @@
 
 #include "rotencoder.h"
 
-RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, uint8_t BTN, bool active) {
+RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, int BTN, bool active) {
     i2c_exp = NULL;
     this->BaseConstructor(A, B, BTN, active);
-    this->pinMode(pinA,   configType);
-    this->pinMode(pinB,   configType);
+    //this->pinMode(pinA,   configType);
+    //this->pinMode(pinB,   configType);
+    ESP32Encoder::useInternalWeakPullResistors=UP;
+    this->_encoder.attachHalfQuad(pinA, pinB);
     if (pinBTN>=0) {
         this->pinMode(pinBTN, configType); 
         previous_button = this->digitalRead(pinBTN);
     }
+      
 
 }
 
-RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, uint8_t BTN, bool active) {
+RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, int BTN, bool active) {
     i2c_exp = _i2c_exp;
     this->BaseConstructor(A, B, BTN, active);
     i2c_exp->encoder(A,B);
@@ -43,21 +46,9 @@ void RotaryEncoder::service() {
     if (i2c_exp != NULL) {
         changed = i2c_exp->readEncoderValue(pinA, pinB, &value);
     } else {
-        unsigned char stateChannelA = this->digitalRead(pinA);
-        unsigned char stateChannelB = this->digitalRead(pinB);
-        if (stateChannelA == previous_state_a)  {
-            changed = true;
-            if (stateChannelB) {
-                // B HIGH, CW
-                value++;
-            }
-            else {
-                // B LOW, CWW 
-                value--;
-            }
-        }
-         previous_state_a = stateChannelA;   // Guardar valores para siguiente
+        value = _encoder.getCount();
     }
+
     if (pinBTN>=0) {
         uint8_t current_state_c = this->digitalRead(pinBTN); // BTN
         if (current_state_c!=previous_button){
@@ -74,11 +65,12 @@ void RotaryEncoder::service() {
         first_time = 0;
     }
 
+
 }
 
 // protected functions
 
-void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN, bool active) {
+void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, int BTN, bool active) {
     pinA = A;
     pinB = B;
     pinBTN = BTN;
@@ -90,7 +82,7 @@ void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, uint8_t BTN, bool acti
     value = 0;
     previous_button  = 0;
     previous_value   = 0;
-    previous_state_a = 0;
+
 }
 
 

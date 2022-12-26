@@ -614,3 +614,42 @@ https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32
 current
 https://dl.espressif.com/dl/package_esp32_index.json
 http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+i2c addresses
+```
+// 32 (0x20)
+// default jumper connection:
+// 32 (0x20) address
+// x x x
+// x x x
+// | | | 
+// x x x
+//A0   A2
+//
+// 33 (0x21) address
+// x x x
+// |
+// x x x
+//   | | 
+// x x x
+//A0   A2
+//
+// 35 (0x23) address
+// x x x
+// | |
+// x x x
+//     |  
+// x x x
+//A0   A2
+//
+// our working example
+//
+// 35 (0x23) address
+// x x x
+// | |
+// x x x
+//     |  
+// x x x
+//A0   A2
+//
+```
