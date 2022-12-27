@@ -55,7 +55,9 @@
 			"utility": "cpp",
 			"istream": "cpp",
 			"*.tcc": "cpp",
-			"random": "cpp"
+			"random": "cpp",
+			"ostream": "cpp",
+			"variant": "cpp"
 		}
 	}
 }

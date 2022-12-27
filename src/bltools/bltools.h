@@ -41,10 +41,12 @@ struct serial_package_s {
 typedef serial_package_s serial_package_t;
 extern serial_package_t PACKET;
 
-
+extern unsigned long set_bit_data(unsigned long data, unsigned long pos, unsigned long val);
+extern uint8_t get_bit_data(unsigned long data, unsigned long pos);
 
 extern unsigned long set_bit(unsigned long pos, unsigned long val);
 extern uint8_t get_bit(unsigned long pos);
+
 
 
 #endif

@@ -19,25 +19,34 @@ void print_state() {
 }
 #endif 
 
-unsigned long set_bit(unsigned long pos, unsigned long val)  {
+unsigned long set_bit_data(unsigned long data, unsigned long pos, unsigned long val)  {
     unsigned long int mask = (unsigned long)1 << pos;
 
-    BUTTONS = (BUTTONS & ~mask) |  (val << pos);
+    data = (data & ~mask) |  (val << pos);
 
     #ifndef RELEASE
     #ifdef DEBUG
         memset(line, 0, LINE_SIZE);
-        sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, BUTTONS, mask);
+        sprintf(line,"set_bit %d -> %d [%lu] [%lu]", pos, val, data, mask);
         Serial.println(line);
     #endif
     #endif
     
-    return (BUTTONS);
+    return (data);
 }
 
-uint8_t get_bit(unsigned long pos) {
-    uint8_t value = ( (BUTTONS >> pos) & 1UL ? 1 : 0);
+uint8_t get_bit_data(unsigned long data, unsigned long pos) {
+    uint8_t value = ( (data >> pos) & 1UL ? 1 : 0);
     return(value);
 }
 
+unsigned long set_bit(unsigned long pos, unsigned long val)  {
+    unsigned long int mask = (unsigned long)1 << pos;
 
+    BUTTONS = set_bit_data(BUTTONS, pos, val);
+    return BUTTONS;
+}
+
+uint8_t get_bit(unsigned long pos) {
+    return( get_bit_data(BUTTONS, pos) );
+}

@@ -19,7 +19,8 @@
 //
 
 // #define RELEASE 1
-//#define DEBUG 1
+// #define DEBUG 1
+// #define TESTING 1           // undefine this to use the real BL stack
 
 #include <Arduino.h>
 #include <PCF8574.h>
@@ -34,8 +35,9 @@
 #include "rotencoder.h"
 #include "bltools.h"
 
-Ticker periodicTicker;
+word SELECTOR;
 
+Ticker periodicTicker;
 #define DELAY_TIME 50
 #define EXPANDER_ADDESS 0x23
 PCF8574 pcf8574(EXPANDER_ADDESS);
@@ -111,14 +113,48 @@ unsigned char NANO_BITS[] {
    19     //S_SW2_2_S2
 };
 
+unsigned char selector_map(unsigned long buttons) {
+
+    //
+    // bits in the signals are no consecutive, due the 
+    // nature of pins in the NANO, so I have to manage
+    // the signal bitmap and build a "normalized"
+    // integer. 0 means spureus contact, so just skip
+    // it.
+
+    word SELECTOR_value = buttons & 0xFFFFUL; // 16 first bytes
+    SELECTOR_value = SELECTOR_value >> 2; // reduce the value
+    // to get the number of bits used to generate the number.
+    //word bits = (log (SELECTOR_value) / log (2));
+    
+    unsigned char ret;
+    switch (SELECTOR_value) {
+        case 1:    ret = 1;  break;
+        case 2:    ret = 2;  break;
+        case 4:    ret = 3;  break;
+        case 8:    ret = 4;  break;
+        case 16:   ret = 5;  break;
+        case 32:   ret = 6;  break;
+        case 256:  ret = 7;  break;
+        case 512:  ret = 8;  break;
+        case 1024: ret = 9;  break;
+        case 4096: ret = 10; break;
+        case 8192: ret = 11; break;
+        default:   ret =  0; break;
+    }
+    return ret;
+}
+
+
 
 // ESP 1way Switches
-#define S_SW1_6_S1  15  // G2
-#define S_SW1_5_S1  16  // G4
-#define S_SW1_4_S1  17  // G5
-#define S_SW1_3_S1  18  // G12
-#define S_SW1_2_S1  19  // G14
-#define S_SW1_1_S1  20  // G15
+#define S_SW1_1_S1  15  // G15
+#define S_SW1_2_S1  16  // G14
+#define S_SW1_3_S1  17  // G12
+#define S_SW1_4_S1  18  // G5
+#define S_SW1_5_S1  19  // G4
+#define S_SW1_6_S1  20  // G2
+
 
 // define the keypad signals.
 
@@ -182,8 +218,6 @@ unsigned char rotenc_map[MAX_ROTARIES][2] = {
 #define KP_ROWS 4
 #define KP_COLS 4
 
-
-
 uint8_t kp_rowPins[KP_ROWS] = {PIN_KP_ROW_0, PIN_KP_ROW_1, PIN_KP_ROW_2, PIN_KP_ROW_3};
 uint8_t kp_colPins[KP_COLS] = {PIN_KP_COL_0, PIN_KP_COL_1, PIN_KP_COL_2, PIN_KP_COL_3};
 
@@ -208,17 +242,99 @@ uint8_t keymap_signals[] = {
     S_KP_8  ,
     S_KP_9  ,
     S_KP_10 ,
-    S_KP_11 ,
-    S_KP_12 ,
-    S_KP_13 ,
-    S_KP_14 ,
-    S_KP_15 ,
+    S_KP_11 ,   // rotenc 5
+    S_KP_12 ,   // rotenc 1
+    S_KP_13 ,   // rotenc 2
+    S_KP_14 ,   // rotenc 3
+    S_KP_15 ,   // rotenc 4
     S_KP_16 // not used
 };
 
 #define MAX_SIGNALS 47
 unsigned char SIGNALS[MAX_SIGNALS] = { 0 };
 unsigned char PREV_SIGNALS[MAX_SIGNALS] = { 0 };
+
+
+// max buttons: 36 (3 blocks of 128 buttons with mode.)
+// rotenc = 15 buttons.
+
+unsigned char BUTTON_MAP[] = {
+//
+// NANO MODE.
+// this is used as a mode selector, not a button
+// so don't map it here. The number is the button
+// number. 0 means no button, just for reference
+// to map the table usign the signal ID.
+//
+
+0, // S_1P12T_1
+0, // S_1P12T_2
+0, // S_1P12T_3
+0, // S_1P12T_4
+0, // S_1P12T_5
+0, // S_1P12T_6
+0, // S_1P12T_7
+0, // S_1P12T_8
+0, // S_1P12T_9
+0, // S_1P12T_10
+0, // S_1P12T_11
+
+// 
+// NANO two way switches
+//
+12, // S_SW2_1_S1
+13, // S_SW2_1_S2
+14, // S_SW2_2_S1
+15, // S_SW2_2_S2
+
+// 
+// ESP 32 one way switches
+//
+
+16, // S_SW1_1_S1
+17, // S_SW1_2_S1
+18, // S_SW1_3_S1
+19, // S_SW1_4_S1 
+20, // S_SW1_5_S1 
+21, // S_SW1_6_S1 
+
+//
+// buttons
+//
+1,  // S_KP_1   
+2,  // S_KP_2   
+3,  // S_KP_3   
+4,  // S_KP_4   
+5,  // S_KP_5   
+6,  // S_KP_6   
+7,  // S_KP_7   
+8,  // S_KP_8   
+9,  // S_KP_9   
+10, // S_KP_10
+
+23, // S_KP_11     // ROT5
+26, // S_KP_12     // ROT1
+29, // S_KP_13     // ROT2
+32, // S_KP_14     // ROT3
+35, // S_KP_15     // ROT4
+
+0, // S_KP_16     // not used.
+
+//
+// rotenc buttons (left, right)
+// 
+
+25, // S_ROT_1_LEFT  
+27, // S_ROT_1_RIGHT 
+28, // S_ROT_2_LEFT  
+30, // S_ROT_2_RIGHT 
+31, // S_ROT_3_LEFT  
+33, // S_ROT_3_RIGHT 
+34, // S_ROT_4_LEFT  
+36, // S_ROT_4_RIGHT 
+22, // S_ROT_5_LEFT  
+24  // S_ROT_5_RIGHT 
+};
 
 
 //
@@ -241,20 +357,62 @@ void print_signals() {
 }
 #endif 
 
+uint8_t button_mapping(uint8_t signal_num) {
+    uint8_t button_map = BUTTON_MAP[signal_num];
+
+    // first 24 buttons are constant (all the switches, pushbuttons and the ROT5 encoder (topmost))
+    // lower rotary are changed based on selector.
+    // with 24 + 12 (first 24 buttons + 12 buttons from ROTENCS) I have 8 available modes (with 8 buttons left)
+    // so I will limit the rotary encoder using the hardware washer to allow only 8 modes, (losing 9, 10, 11) and
+    // map the buttons. so
+
+    if (button_map > 24) {
+        button_map = button_map + ((SELECTOR - 1) * 12);
+    }
+    return button_map;
+}
+
 
 void send_buttons() {
+
+    #ifdef TESTING
+    if (true) {
+    #else
     if (bleDevice.isConnected()) {
-        for (int i=0; i<MAX_SIGNALS; i++) {
-            uint8_t button = SIGNALS[i];
-            if (button) {
-                Gamepad.press(i);
+    #endif
+        for (uint8_t i=0; i<MAX_SIGNALS; i++) {
+            uint8_t button_value = SIGNALS[i];
+            uint8_t button_map = button_mapping(i);
+            if (button_map == 0) {
+                continue;
+            }
+            
+
+            if (button_value) {
+                #ifndef RELEASE
+                memset(line, 0, LINE_SIZE);
+                sprintf(line, "Press %d [selector: %x]", button_map, SELECTOR);
+                Serial.println(line);
+                #endif
+                #ifndef TESTING
+                    Gamepad.press(button_map);
+                #endif
             }
             else {
-                Gamepad.release(i);
+                #ifndef RELEASE
+                memset(line, 0, LINE_SIZE);
+                sprintf(line, "Release %d [selector: %x]", button_map, SELECTOR);
+                Serial.println(line);
+                #endif
+                #ifndef TESTING
+                    Gamepad.release(button_map);
+                #endif
             }
         }
-        
-        Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+        // I could use the POVS to map additional buttons.
+        #ifndef TESTING
+            Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+        #endif
     }
 }
 
@@ -345,22 +503,27 @@ void setup() {
     #endif
     periodicTicker.attach_ms(1, timer_isr);
 
+    // selector init mode
+    SELECTOR = 0;
+
     // the keypad matrix
     customKeypad.addEventListener(keypadEvent);
 
     // the bluetooth things
-    Keyboard.begin();
-    Mouse.begin();
-    Gamepad.begin();
+    #ifndef TESTING
+        Keyboard.begin();
+        Mouse.begin();
+        Gamepad.begin();
+    #endif
 }
 
 
 
-long prev_value = 0;
+
 
 void loop() {
 
-   
+
     PREV_BUTTONS = BUTTONS;
     memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
 
@@ -407,10 +570,22 @@ void loop() {
         SIGNALS[S_1P12T_9 ] = get_bit(NANO_BITS[S_1P12T_9 ]);
         SIGNALS[S_1P12T_10] = get_bit(NANO_BITS[S_1P12T_10]);
         SIGNALS[S_1P12T_11] = get_bit(NANO_BITS[S_1P12T_11]);
+        
         SIGNALS[S_SW2_1_S1] = get_bit(NANO_BITS[S_SW2_1_S1]);
         SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_1_S2]);
         SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_2_S1]);
         SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_2_S2]);
+
+        // process the selector.
+
+        word SELECTOR_value = selector_map(BUTTONS);
+        if (SELECTOR_value == 0) {
+            // skip it because it's a bounce. Wait for the new
+            goto end_loop;
+        }
+        SELECTOR = SELECTOR_value;
+        Serial.println(SELECTOR);
+
     }
 
     // 
@@ -464,6 +639,8 @@ void loop() {
         #endif
         send_buttons();
     }
+
+end_loop:
     // maybe it's going to be removed
     delay(DELAY_TIME);
 }
