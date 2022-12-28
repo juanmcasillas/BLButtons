@@ -788,7 +788,7 @@ void BleCombo::resetButtons() {
 }
 void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3, int16_t a4, int16_t a5, int16_t a6, signed char hat1, signed char hat2, signed char hat3, signed char hat4) {
 
- uint8_t m[26]; // 34
+ 	uint8_t m[26]; // 34
     memset(&m,0,sizeof(m));
 
     memcpy(&m, &_buttonsGamepad, sizeof(_buttonsGamepad));
@@ -806,8 +806,20 @@ void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3,
     //memset(&m,0, sizeof(m));
     this->inputGamepad->setValue(m, sizeof(m));
     this->inputGamepad->notify();
-
 }
+
+void BleCombo::sendAllButtons() {
+
+	//uint8_t *ptr = this->inputGamepad->getData();
+ 	uint8_t m[26]; // 34
+    memset(&m,0,sizeof(m));
+	//memcpy(&m, ptr, sizeof(m));
+    memcpy(&m, &_buttonsGamepad, sizeof(_buttonsGamepad));
+    this->inputGamepad->setValue(m, sizeof(m));
+    this->inputGamepad->notify();
+}
+
+
 size_t BleCombo::pressButton(uint8_t b) {
 	char index = (b-1) / 8;
   char bit = (b-1) % 8;

@@ -21,6 +21,12 @@ void Gamepad_::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3,
   bleDevice.setAxes(x,y,a1,a2,a3,a4,a5,a6,hat1,hat2,hat3,hat4);
 }
 
+void Gamepad_::sendAllButtons()
+{
+  bleDevice.sendAllButtons();
+}
+
+
 // indexed button (1..128)
 void Gamepad_::press(uint8_t b)
 {

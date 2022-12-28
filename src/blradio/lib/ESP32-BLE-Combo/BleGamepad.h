@@ -148,6 +148,7 @@ public:
   void begin(void);
   void end(void);
   void setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3, int16_t a4, int16_t a5, int16_t a6, signed char hat1, signed char hat2, signed char hat3, signed char hat4);
+  void sendAllButtons();
   void press(uint8_t b = BUTTON_1);   // press BUTTON_1 by default
   void release(uint8_t b = BUTTON_1); // release BUTTON_1 by default
   bool isPressed(uint8_t b = BUTTON_1); // check BUTTON_1 by default

@@ -653,3 +653,10 @@ i2c addresses
 //A0   A2
 //
 ```
+
+## note about serial sync and power up simultaneously
+
+Arduino delay(100) on setup() (before)
+ESP32 delay(500) on setup() (after)
+
+if not done so, the serial port doesn't work.

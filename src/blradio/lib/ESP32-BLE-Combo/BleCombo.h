@@ -89,9 +89,14 @@ private:
   void delay_ms(uint64_t ms);
   void buttons(const uint16_t b);
 
-  uint16_t vid = 0x05ac;
-  uint16_t pid = 0x820a;
-  uint16_t version = 0x0210;
+  // device definition
+  // uint16_t vid = 0x05ac;
+  // uint16_t pid = 0x820a;
+  // uint16_t version = 0x0210;
+
+  uint16_t vid = 0x05bd;
+  uint16_t pid = 0x820b;
+  uint16_t version = 0x0212;
 
   static bool isInitialized;
 
@@ -121,6 +126,7 @@ protected:
   // keypad magic
   void resetButtons();
   void setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3, int16_t a4, int16_t a5, int16_t a6, signed char hat1, signed char hat2, signed char hat3, signed char hat4);
+  void sendAllButtons();
   size_t pressButton(uint8_t b);
   size_t releaseButton(uint8_t b);
   bool isPressedButton(uint8_t b);

@@ -53,6 +53,7 @@ unsigned char INPUT_PINS[] = {  0,  0,  2,  3,  4,  5,  6,  7,
 
 void setup() {
      /// @brief  init all the devices as INPUT_PULLUP, so if 0, are active
+     pinMode(LED_BUILTIN, OUTPUT);
 
      for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
@@ -73,7 +74,7 @@ void setup() {
     Serial.println("NanoWriter Started - writting on D9");
 #endif
     altSerial.begin(SERIAL_SPEED);
-    delay(1000); // wait for ESP32 so the ESP32 begin init before us
+    delay(100); // wait for ESP32 so the ESP32 begin init before us
 }
 
 
@@ -106,7 +107,9 @@ void loop() {
         PACKET.data = BUTTONS;
         altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // sizeof says 12 but are 6
         PREV_BUTTONS = BUTTONS;
+        digitalWrite(LED_BUILTIN, HIGH);
     }
     delay(DELAY_TIME);
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
