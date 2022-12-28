@@ -14,6 +14,14 @@
 
 #include "rotencoder.h"
 
+/**
+ * @brief Construct a new Rotary Encoder:: Rotary Encoder object. Local wired version
+ * 
+ * @param A 
+ * @param B 
+ * @param BTN 
+ * @param active 
+*/
 RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, int BTN, bool active) {
     i2c_exp = NULL;
     this->BaseConstructor(A, B, BTN, active);
@@ -29,6 +37,16 @@ RotaryEncoder::RotaryEncoder(uint8_t A, uint8_t B, int BTN, bool active) {
 
 }
 
+/**
+ * @brief Construct a new Rotary Encoder:: Rotary Encoder object. PCF8574 i2c expansor
+ * 
+ * @param _i2c_exp 
+ * @param A 
+ * @param B 
+ * @param BTN 
+ * @param active 
+*/
+
 RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, int BTN, bool active) {
     i2c_exp = _i2c_exp;
     this->BaseConstructor(A, B, BTN, active);
@@ -40,7 +58,19 @@ RotaryEncoder::RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, int BTN, b
 
 }
 
-
+/**
+ * @brief this function should be called periodically
+ * 
+ *  For example, using Ticker library:
+ *  #include <Ticker.h>
+ *  Ticker periodicTicker;
+ * void timer_isr() {
+ *   for (int i=0; i< MAX_ROTARIES; i++) {
+ *       encoders[i]->service();
+ *   }
+ * }
+ * periodicTicker.attach_ms(1, timer_isr);
+*/
 void RotaryEncoder::service() {
 
     if (i2c_exp != NULL) {
@@ -70,6 +100,14 @@ void RotaryEncoder::service() {
 
 // protected functions
 
+/**
+ * @brief base constructor.
+ * 
+ * @param A 
+ * @param B 
+ * @param BTN 
+ * @param active 
+*/
 void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, int BTN, bool active) {
     pinA = A;
     pinB = B;
@@ -85,7 +123,12 @@ void RotaryEncoder::BaseConstructor(uint8_t A, uint8_t B, int BTN, bool active) 
 
 }
 
-
+/**
+ * @brief wrapper about digitalRead, to use the i2c or local one
+ * 
+ * @param pin 
+ * @return uint8_t 
+*/
 uint8_t RotaryEncoder::digitalRead(uint8_t pin) {
     if (i2c_exp) {
         return i2c_exp->digitalRead(pin);
@@ -93,7 +136,12 @@ uint8_t RotaryEncoder::digitalRead(uint8_t pin) {
     return ::digitalRead(pin);
 }
 
-
+/**
+ * @brief wrapper about pinMode, to use the i2c or local one
+ * 
+ * @param pin 
+ * @param mode 
+*/
 void RotaryEncoder::pinMode(uint8_t pin, uint8_t mode) {
     if (i2c_exp) {
         i2c_exp->pinMode(pin, mode);

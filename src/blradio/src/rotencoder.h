@@ -19,8 +19,14 @@
 #include <Arduino.h>
 #include <PCF8574.h>        // Using the expansor I2C
 #define ENCODER_DO_NOT_USE_INTERRUPTS
-#include <ESP32Encoder.h>
+#include <ESP32Encoder.h>   // https://github.com/madhephaestus/ESP32Encoder/
 
+/**
+ * @brief a class to encapsulate the Rotary Encoder functionality,
+ * using a PCF8574 I2C expansor, or a "normal" one, a single ky-040
+ * rotary encoder without breakout board.
+ * 
+*/
 class  RotaryEncoder {
 public:
 typedef enum State_e {
@@ -33,6 +39,11 @@ typedef enum State_e {
     RotaryEncoder(uint8_t A, uint8_t B, int BTN, bool active = LOW); // local version
     RotaryEncoder(PCF8574 *_i2c_exp, uint8_t A, uint8_t B, int BTN, bool active = LOW); // expansor version
  
+    /**
+     * @brief Get the Direction object
+     * 
+     * @return State  returns (State::RIGHT, State::LEFT, State::NONE)
+    */
     State getDirection() { 
       State ret = State::NONE;
       
@@ -43,10 +54,13 @@ typedef enum State_e {
       return ret;
     }
 
+    /**
+     * @brief reset the counter values.
+     * 
+    */
     void  resetValues() {
       value = previous_value = 0;
     }
-
 
 
     State getButton()  { return button; }

@@ -25,6 +25,12 @@
 #include <AltSoftSerial.h>
 #include "bltools.h"
 
+#define DELAY_TIME     50               // time to wait in the loop()
+
+// on nano, PIN_RX = 8, PIN_tx 9 always.
+#define PIN_RX 8
+#define PIN_TX 9
+
 AltSoftSerial altSerial;
 #define NUM_INPUTS 32
 
@@ -67,18 +73,16 @@ void setup() {
     Serial.println("NanoWriter Started - writting on D9");
 #endif
     altSerial.begin(SERIAL_SPEED);
-    delay(1000); // wait for ESP32
+    delay(1000); // wait for ESP32 so the ESP32 begin init before us
 }
 
 
 void loop() {
- 
-   
-    
+
     for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
             int input_value = digitalRead(INPUT_PINS[i]);
-            input_value = ( input_value == 0 ? 1 : 0);  // PULLUP, 0 is active (GND)
+            input_value = ( input_value == 0 ? 1 : 0);  // PULLUP config, 0 is active (GND)
             set_bit(i, input_value);
 
             #ifndef RELEASE
@@ -100,9 +104,9 @@ void loop() {
         print_state();
         #endif
         PACKET.data = BUTTONS;
-        altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // this says 12.
+        altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // sizeof says 12 but are 6
         PREV_BUTTONS = BUTTONS;
     }
-    delay(100);
+    delay(DELAY_TIME);
 }
 
