@@ -21,8 +21,8 @@
 //
 
 #define RELEASE 1                  // define this to remove all debug data
-// #define DEBUG 1                 // define this to debug extra info
-// #define TESTING 1               // undefine this to use the real BL stack. Clean All and build
+//#define DEBUG 1                 // define this to debug extra info
+//#define TESTING 1               // undefine this to use the real BL stack. Clean All and build
 
 
 // see helpers.h for debug defines
@@ -122,10 +122,10 @@ unsigned char NANO_BITS[] {
    12,    //S_1P12T_9 
    14,    //S_1P12T_10
    15,    //S_1P12T_11
-   16,    //S_SW2_1_S1
-   17,    //S_SW2_1_S2
-   18,    //S_SW2_2_S1
-   19     //S_SW2_2_S2
+   16,    //S_SW2_2_S2 // bad wiring
+   17,    //S_SW2_2_S1 // bad wiring
+   18,    //S_SW2_1_S2 // bad wiring
+   19     //S_SW2_1_S1 // bad wiring
 };
 
 //
@@ -643,7 +643,7 @@ void loop() {
     if (PREV_BUTTONS != BUTTONS) {
         #ifndef RELEASE
         #ifdef DEBUG
-        //print_state();
+        print_state();
         #endif
         #endif
 
@@ -659,10 +659,10 @@ void loop() {
         SIGNALS[S_1P12T_10] = get_bit(NANO_BITS[S_1P12T_10]);
         SIGNALS[S_1P12T_11] = get_bit(NANO_BITS[S_1P12T_11]);
         
-        SIGNALS[S_SW2_1_S1] = get_bit(NANO_BITS[S_SW2_1_S1]);
-        SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_1_S2]);
-        SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_2_S1]);
-        SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_2_S2]);
+        SIGNALS[S_SW2_1_S1] = get_bit(NANO_BITS[S_SW2_2_S2]);   // bad wiring. remap here.
+        SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_2_S1]);
+        SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_1_S2]);
+        SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_1_S1]);
 
         // process the selector.
 
