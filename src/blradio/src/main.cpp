@@ -21,8 +21,8 @@
 //
 
 #define RELEASE 1                  // define this to remove all debug data
-//#define DEBUG 1                 // define this to debug extra info
-//#define TESTING 1               // undefine this to use the real BL stack. Clean All and build
+// #define DEBUG 1                 // define this to debug extra info
+// #define TESTING 1               // undefine this to use the real BL stack. Clean All and build
 
 
 // see helpers.h for debug defines
@@ -429,6 +429,7 @@ void send_buttons() {
                 
                 #ifndef TESTING
                     Gamepad.press(button_map);
+                    Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
                 #endif
             }
             else {
@@ -439,12 +440,14 @@ void send_buttons() {
                 #endif
                 #ifndef TESTING
                     Gamepad.release(button_map);
+                    Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
                 #endif
             }
         }
         // I could use the POVS to map additional buttons.
         #ifndef TESTING
-            Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+          
+            //Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
             //Gamepad.sendAllButtons();
         #endif
     }
@@ -672,7 +675,6 @@ void loop() {
             goto end_loop;
         }
         SELECTOR = SELECTOR_value;
-        Serial.println(SELECTOR);
 
     }
 

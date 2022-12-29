@@ -821,20 +821,23 @@ void BleCombo::sendAllButtons() {
 
 
 size_t BleCombo::pressButton(uint8_t b) {
-	char index = (b-1) / 8;
-  char bit = (b-1) % 8;
+	uint8_t index = (b-1) / 8;
+  uint8_t bit = (b-1) % 8;
   uint8_t bitmask = (1 << bit);
+  
 
-  uint8_t result = _buttonsGamepad[index] | bitmask;
+
+  uint64_t result = _buttonsGamepad[index] | bitmask;
   if (result != _buttonsGamepad[index]) {
     _buttonsGamepad[index] = result;
   }
+
  return result;
 
 }
 size_t BleCombo::releaseButton(uint8_t b) {
- char index = (b-1) / 8;
-  char bit = (b-1) % 8;
+ uint8_t index = (b-1) / 8;
+  uint8_t bit = (b-1) % 8;
   uint8_t bitmask = (1 << bit);
 
   uint64_t result = _buttonsGamepad[index] & ~bitmask;
@@ -843,8 +846,8 @@ size_t BleCombo::releaseButton(uint8_t b) {
 
 }
 bool BleCombo::isPressedButton(uint8_t b) {
-  char index = (b-1) / 8;
-  char bit = (b-1) % 8;
+  uint8_t index = (b-1) / 8;
+  uint8_t bit = (b-1) % 8;
   uint8_t bitmask = (1 << bit);
 
   if ((bitmask & _buttonsGamepad[index]) > 0)
