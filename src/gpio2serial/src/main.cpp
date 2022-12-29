@@ -53,7 +53,7 @@ unsigned char INPUT_PINS[] = {  0,  0,  2,  3,  4,  5,  6,  7,
 
 void setup() {
      /// @brief  init all the devices as INPUT_PULLUP, so if 0, are active
-     pinMode(LED_BUILTIN, OUTPUT);
+
 
      for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
@@ -99,17 +99,15 @@ void loop() {
         }
     }
 
-    // if buttons changed, send them
-    if (PREV_BUTTONS != BUTTONS) {
-        #ifndef RELEASE
-        print_state();
-        #endif
-        PACKET.data = BUTTONS;
-        altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // sizeof says 12 but are 6
-        PREV_BUTTONS = BUTTONS;
-        digitalWrite(LED_BUILTIN, HIGH);
-    }
+
+
+    #ifndef RELEASE
+    print_state();
+    #endif
+    PACKET.data = BUTTONS;
+    altSerial.write( (uint8_t *) &PACKET, sizeof( PACKET ) ); // sizeof says 12 but are 6
+    PREV_BUTTONS = BUTTONS;
+
     delay(DELAY_TIME);
-    digitalWrite(LED_BUILTIN, LOW);
 }
 
