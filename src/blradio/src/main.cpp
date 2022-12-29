@@ -272,7 +272,7 @@ unsigned char BUTTON_MAP[] = {
 // ESP 32 one way switches
 //
 
-11, // S_SW1_1_S1
+15, // S_SW1_1_S1
 16, // S_SW1_2_S1
 17, // S_SW1_3_S1
 18, // S_SW1_4_S1 
@@ -575,6 +575,14 @@ void setup() {
         #endif
     }
 
+    // the bluetooth things
+    #ifndef TESTING
+        Keyboard.begin();
+        Mouse.begin();
+        Gamepad.begin();
+    #endif
+
+
     periodicTicker.attach_ms(1, timer_isr);
 
     // selector init mode
@@ -583,12 +591,7 @@ void setup() {
     // the keypad matrix
     customKeypad.addEventListener(keypadEvent);
 
-    // the bluetooth things
-    #ifndef TESTING
-        Keyboard.begin();
-        Mouse.begin();
-        Gamepad.begin();
-    #endif
+
 }
 
 
@@ -626,22 +629,35 @@ void loop() {
     // 
     // read the data from serial This must be encapsulated in a function.
     // 
-    if ( DriverPort.available() >= PACKET_SIZE ) {
+    while ( DriverPort.available() ) {
         uint8_t data[6]; // size of serial_package_s;
         digitalWrite(PIN_LED,HIGH);
-        for (int i=0; i< PACKET_SIZE; i++) {
+        data[0] = DriverPort.read();
+        if (data[0] != PACKET_HEADER) {
+            continue;
+        }
+
+        for (int i=1; i< PACKET_SIZE; i++) {
             data[i] = DriverPort.read();
         }
         PACKET.header = data[0];
         PACKET.data   = data[1] | (data[2] << 8) | (data[3] << 16) | (data[4] << 24);
         PACKET.footer = data[5];
 
-        if (PACKET.header == 0xDE && PACKET.footer == 0xAD) {
+        if (PACKET.header == PACKET_HEADER && PACKET.footer == PACKET_FOOTER) {
             BUTTONS = PACKET.data;
         }
         else {
             // some problem with the serial port.
         }
+        #ifndef RELEASE
+        #ifdef DEBUG
+        memset(line, 0, LINE_SIZE);
+        sprintf(line,"Serial line data: %x %x %x %x %x %x",data[0], data[1],data[2],data[3],data[4],data[5]);
+        Serial.println(line);
+        #endif
+        #endif
+        break;
     }
     if (PREV_BUTTONS != BUTTONS) {
         #ifndef RELEASE
@@ -649,6 +665,15 @@ void loop() {
         print_state();
         #endif
         #endif
+
+        // process the selector.
+
+        word SELECTOR_value = selector_map(BUTTONS);
+        if (SELECTOR_value == 0) {
+            // skip it because it's a bounce. Wait for the new
+            goto end_loop;
+        }
+        SELECTOR = SELECTOR_value;
 
         SIGNALS[S_1P12T_1 ] = get_bit(NANO_BITS[S_1P12T_1 ]);
         SIGNALS[S_1P12T_2 ] = get_bit(NANO_BITS[S_1P12T_2 ]);
@@ -666,16 +691,6 @@ void loop() {
         SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_2_S1]);
         SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_1_S2]);
         SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_1_S1]);
-
-        // process the selector.
-
-        word SELECTOR_value = selector_map(BUTTONS);
-        if (SELECTOR_value == 0) {
-            // skip it because it's a bounce. Wait for the new
-            goto end_loop;
-        }
-        SELECTOR = SELECTOR_value;
-
     }
 
     // 

@@ -803,6 +803,16 @@ void BleCombo::setAxes(int16_t x, int16_t y, int16_t a1, int16_t a2, int16_t a3,
     m[24] = hat1 | (hat2 << 4); // 1 and 2
     m[25] = hat3 | (hat4 << 4); // 3 and 4 
     
+	// uncomment and #include <Arduino.h> at top to debug the button
+	// char l[128];
+	// memset(l,0,128);
+	// sprintf(l,"%x %x %x %x %x %x %x %x",m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7]);
+	// Serial.println(l);
+	// sprintf(l,"%x %x %x %x %x %x %x %x",m[8],m[9],m[10],m[11],m[12],m[13],m[14],m[15]);
+	// Serial.println(l);
+
+	
+
     //memset(&m,0, sizeof(m));
     this->inputGamepad->setValue(m, sizeof(m));
     this->inputGamepad->notify();
