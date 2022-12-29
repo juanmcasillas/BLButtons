@@ -661,3 +661,16 @@ Arduino delay(100) on setup() (before)
 ESP32 delay(500) on setup() (after)
 
 if not done so, the serial port doesn't work.
+
+## how to change the windows name for the device.
+
+- Look in device manager for the Bluetooh -> BL-Combo or BL-Radio.
+- right click, Children, point the Dev_VID&02bd05_PID&02b82_REV&1202
+- these are the values we put on BLCombo:h:
+```
+  uint16_t vid = 0x05bd;
+  uint16_t pid = 0x820b;
+  uint16_t version = 0x0212;
+```
+- Issue a regedit and look for "8 axis" or look for VIDBD05 [see the pattern]
+- Then under Joystick->OEM->VIDBD05&PID_0B82 Change OEMName to desired one.
