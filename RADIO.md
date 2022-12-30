@@ -664,9 +664,11 @@ if not done so, the serial port doesn't work.
 
 ## how to change the windows name for the device.
 
+- If you plan to use two devices in the same pc, you must change
+- this values (e.g. BL-Radio & BL-Buttons)
 - Look in device manager for the Bluetooh -> BL-Combo or BL-Radio.
 - right click, Children, point the Dev_VID&02bd05_PID&02b82_REV&1202
-- these are the values we put on BLCombo:h:
+- these are the values we put on BLCombo:h: 
 ```
   uint16_t vid = 0x05bd;
   uint16_t pid = 0x820b;

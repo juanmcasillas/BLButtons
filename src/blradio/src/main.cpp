@@ -20,9 +20,17 @@
 // https://github.com/khoih-prog/ESP32TimerInterrupt
 //
 
-#define RELEASE 1                  // define this to remove all debug data
-// #define DEBUG 1                 // define this to debug extra info
-// #define TESTING 1               // undefine this to use the real BL stack. Clean All and build
+#define RELEASE 1                  /* define this to remove all debug data */
+#define DEBUG_SERIAL  0x1
+#define DEBUG_SIGNALS 0x2
+#define DEBUG_BUTTON  0x4
+#define DEBUG_STATE   0x8
+#define DEBUG_KEYS   0x10
+#define DEBUG_ROTENC 0x20
+#define DEBUG_ALL    0xFF
+//#define DEBUG DEBUG_ALL
+//#define DEBUG DEBUG_BUTTON               /* define this to debug extra info */
+//#define TESTING 1                        /* undefine this to use the real BL stack. Clean All and build */
 
 
 // see helpers.h for debug defines
@@ -158,6 +166,21 @@ unsigned char NANO_BITS[] {
 #define S_KP_15  35
 #define S_KP_16  36
 
+
+
+//
+// rotary definitions
+//
+#define MAX_ROTARIES 5
+RotaryEncoder *encoders[MAX_ROTARIES];
+#define ROT1    0
+#define ROT2    1
+#define ROT3    2
+#define ROT4    3
+#define ROT5    4
+#define ROT_LEFT  0
+#define ROT_RIGHT 1
+
 //
 // define the rotary encoders buttons [left, right]
 //
@@ -172,18 +195,6 @@ unsigned char NANO_BITS[] {
 #define S_ROT_5_LEFT  45
 #define S_ROT_5_RIGHT 46
 
-//
-// rotary definitions
-//
-#define MAX_ROTARIES 5
-RotaryEncoder *encoders[MAX_ROTARIES];
-#define ROT1    0
-#define ROT2    1
-#define ROT3    2
-#define ROT4    3
-#define ROT5    4
-#define ROT_LEFT  0
-#define ROT_RIGHT 1
 unsigned char rotenc_map[MAX_ROTARIES][2] = {
     { S_ROT_1_LEFT, S_ROT_1_RIGHT },
     { S_ROT_2_LEFT, S_ROT_2_RIGHT },
@@ -221,10 +232,10 @@ uint8_t keymap_signals[] = {
     S_KP_9  ,
     S_KP_10 ,
     S_KP_11 ,   // rotenc 5
-    S_KP_12 ,   // rotenc 1
-    S_KP_13 ,   // rotenc 2
-    S_KP_14 ,   // rotenc 3
-    S_KP_15 ,   // rotenc 4
+    S_KP_12 ,   // rotenc 4
+    S_KP_13 ,   // rotenc 3
+    S_KP_14 ,   // rotenc 2
+    S_KP_15 ,   // rotenc 1
     S_KP_16 // not used
 };
 
@@ -294,10 +305,10 @@ unsigned char BUTTON_MAP[] = {
 10, // S_KP_10
 
 22, // S_KP_11     // ROT5
-34, // S_KP_12     // ROT4
-31, // S_KP_13     // ROT3
-28, // S_KP_14     // ROT2
-25, // S_KP_15     // ROT1
+25, // S_KP_12     // ROT1
+28, // S_KP_13     // ROT2
+31, // S_KP_14     // ROT3
+34, // S_KP_15     // ROT4
 
 0, // S_KP_16     // not used.
 
@@ -305,14 +316,14 @@ unsigned char BUTTON_MAP[] = {
 // rotenc buttons (left, right)
 // 
 
-24, // S_ROT_1_LEFT  
-26, // S_ROT_1_RIGHT 
-27, // S_ROT_2_LEFT  
-29, // S_ROT_2_RIGHT 
-30, // S_ROT_3_LEFT  
-32, // S_ROT_3_RIGHT 
 33, // S_ROT_4_LEFT  
 35, // S_ROT_4_RIGHT 
+30, // S_ROT_3_LEFT  
+32, // S_ROT_3_RIGHT 
+27, // S_ROT_2_LEFT  
+29, // S_ROT_2_RIGHT 
+24, // S_ROT_1_LEFT  
+26, // S_ROT_1_RIGHT 
 21, // S_ROT_5_LEFT  
 23  // S_ROT_5_RIGHT 
 };
@@ -421,9 +432,9 @@ void send_buttons() {
             }
 
             if (button_value) {
-                #ifndef RELEASE
+                #if !defined(RELEASE) && (DEBUG & DEBUG_BUTTON)
                 memset(line, 0, LINE_SIZE);
-                sprintf(line, "Press %d [selector: %x]", button_map, SELECTOR);
+                sprintf(line, "Button press %d [selector: %x]", button_map, SELECTOR);
                 Serial.println(line);
                 #endif
                 
@@ -433,9 +444,9 @@ void send_buttons() {
                 #endif
             }
             else {
-                #ifndef RELEASE
+                #if !defined(RELEASE) && (DEBUG & DEBUG_BUTTON)
                 memset(line, 0, LINE_SIZE);
-                sprintf(line, "Release %d [selector: %x]", button_map, SELECTOR);
+                sprintf(line, "Button release %d [selector: %x]", button_map, SELECTOR);
                 Serial.println(line);
                 #endif
                 #ifndef TESTING
@@ -446,7 +457,6 @@ void send_buttons() {
         }
         // I could use the POVS to map additional buttons.
         #ifndef TESTING
-          
             //Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
             //Gamepad.sendAllButtons();
         #endif
@@ -459,12 +469,10 @@ void send_buttons() {
  * @param key 
 */
 void pressKey(uint8_t key) {
-    #ifndef RELEASE
-    #ifdef DEBUG
+    #if (!defined(RELEASE) && (DEBUG & DEBUG_KEYS))
         memset(line, 0, LINE_SIZE);
         sprintf(line,"key pressed: %d", key);
         Serial.println(line);
-    #endif
     #endif
     SIGNALS[keymap_signals[key]] = 1;
 }
@@ -475,12 +483,10 @@ void pressKey(uint8_t key) {
  * @param key 
 */
 void releaseKey(uint8_t key) {
-    #ifndef RELEASE
-    #ifdef DEBUG
+    #if (!defined(RELEASE) && (DEBUG & DEBUG_KEYS))
         memset(line, 0, LINE_SIZE);
         sprintf(line,"key released: %d", key);
         Serial.println(line);
-    #endif
     #endif
     SIGNALS[keymap_signals[key]] = 0;
 }
@@ -503,7 +509,7 @@ void keypadEvent(KeypadEvent key) {
 }
 
 
-#ifndef RELEASE
+#if !defined(RELEASE) && (DEBUG & DEBUG_SIGNALS)
 /**
  * @brief print the signal contents to debug
  * 
@@ -542,8 +548,8 @@ void setup() {
     DriverPort.begin(SERIAL_SPEED, SERIAL_8N1, PIN_RX, PIN_TX );
     delay(500);
 
-    // LED
-    pinMode(PIN_LED, OUTPUT);
+
+    
     // switches
     pinMode(PIN_SW1_1_S1,INPUT_PULLUP);
     pinMode(PIN_SW1_2_S1,INPUT_PULLUP);
@@ -631,9 +637,13 @@ void loop() {
     // 
     while ( DriverPort.available() ) {
         uint8_t data[6]; // size of serial_package_s;
-        digitalWrite(PIN_LED,HIGH);
         data[0] = DriverPort.read();
         if (data[0] != PACKET_HEADER) {
+            #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
+            memset(line, 0, LINE_SIZE);
+            sprintf(line,"Warning: bad serial data %x [header expected %x]",data[0],PACKET_HEADER);
+            Serial.println(line);
+            #endif
             continue;
         }
 
@@ -649,31 +659,23 @@ void loop() {
         }
         else {
             // some problem with the serial port.
+            #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
+            Serial.println("Warning: bad serial packet received");
+            #endif
         }
-        #ifndef RELEASE
-        #ifdef DEBUG
-        memset(line, 0, LINE_SIZE);
-        sprintf(line,"Serial line data: %x %x %x %x %x %x",data[0], data[1],data[2],data[3],data[4],data[5]);
-        Serial.println(line);
-        #endif
+        #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
+            memset(line, 0, LINE_SIZE);
+            sprintf(line,"Serial line data: %x %x %x %x %x %x",data[0], data[1],data[2],data[3],data[4],data[5]);
+            Serial.println(line);
         #endif
         break;
     }
     if (PREV_BUTTONS != BUTTONS) {
-        #ifndef RELEASE
-        #ifdef DEBUG
-        print_state();
-        #endif
+        #if !defined(RELEASE) && (DEBUG & DEBUG_STATE)        
+            print_state();
         #endif
 
         // process the selector.
-
-        word SELECTOR_value = selector_map(BUTTONS);
-        if (SELECTOR_value == 0) {
-            // skip it because it's a bounce. Wait for the new
-            goto end_loop;
-        }
-        SELECTOR = SELECTOR_value;
 
         SIGNALS[S_1P12T_1 ] = get_bit(NANO_BITS[S_1P12T_1 ]);
         SIGNALS[S_1P12T_2 ] = get_bit(NANO_BITS[S_1P12T_2 ]);
@@ -691,6 +693,13 @@ void loop() {
         SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_2_S1]);
         SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_1_S2]);
         SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_1_S1]);
+
+        word SELECTOR_value = selector_map(BUTTONS);
+        if (SELECTOR_value == 0) {
+            // skip it because it's a bounce. Wait for the new
+            goto end_loop;
+        }
+        SELECTOR = SELECTOR_value;
     }
 
     // 
@@ -708,22 +717,18 @@ void loop() {
 
         switch (encoders[i]->getDirection()) {
             case RotaryEncoder::RIGHT:
-                #ifndef RELEASE
-                #ifdef DEBUG
+                #if !defined(RELEASE) && (DEBUG & DEBUG_ROTENC)
                     memset(line, 0, 128);
                     sprintf(line,"encoder #%d CW (Right)", i+1);
                     Serial.println(line);
                 #endif
-                #endif
                 SIGNALS[rotenc_map[i][ROT_RIGHT]] = 1;
                 break;
             case RotaryEncoder::LEFT:
-                #ifndef RELEASE
-                #ifdef DEBUG
+                #if !defined(RELEASE) && (DEBUG & DEBUG_ROTENC)
                     memset(line, 0, 128);
                     sprintf(line,"encoder #%d CCW (Left)", i+1);
                     Serial.println(line);
-                #endif
                 #endif
                 SIGNALS[rotenc_map[i][ROT_LEFT]] = 1;
                 break;
@@ -736,18 +741,17 @@ void loop() {
 
     // send the things here
     if (memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) {
-        #ifndef RELEASE
-        #ifdef DEBUG
+        #if !defined(RELEASE) && (DEBUG & DEBUG_SIGNALS)
         print_signals();
-        #endif
         #endif
         send_buttons();
     }
 
 end_loop:
     // maybe it's going to be removed
-    delay(DELAY_TIME);
-    digitalWrite(PIN_LED,LOW); // turn off
+    // delay(DELAY_TIME);
+    // waits on serial input
+    ;
 }
 
 

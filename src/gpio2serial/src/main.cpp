@@ -25,7 +25,7 @@
 #include <AltSoftSerial.h>
 #include "bltools.h"
 
-#define DELAY_TIME     50               // time to wait in the loop()
+#define DELAY_TIME     50               /* time to wait in the loop() */
 
 // on nano, PIN_RX = 8, PIN_tx 9 always.
 #define PIN_RX 8
