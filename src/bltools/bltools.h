@@ -17,7 +17,8 @@
 
 #include <Arduino.h>
 
-#define SERIAL_SPEED 57600
+//#define SERIAL_SPEED 57600
+#define SERIAL_SPEED 38400 
 
 #ifndef RELEASE
 #define LINE_SIZE 128

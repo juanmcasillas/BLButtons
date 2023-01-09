@@ -174,7 +174,7 @@ void loop() {
         SELECTOR_value =  (SELECTOR_value & ~mask) |  (value << pos);
         pin++;
     }
-    if (PREV_BUTTONS != BUTTONS) {
+    //if (PREV_BUTTONS != BUTTONS) {
         altSerial.write( (uint8_t *) &SELECTOR_value, 1 );
         PREV_BUTTONS = BUTTONS;
         #ifndef RELEASE
@@ -183,7 +183,7 @@ void loop() {
             sprintf(line,"data: %x",SELECTOR_value);
             Serial.println(line);
         #endif
-    }
+    //}
     delay(DELAY_TIME);
 }
 

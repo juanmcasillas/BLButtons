@@ -30,7 +30,7 @@
 #define DEBUG_ALL    0xFF
 // #define DEBUG DEBUG_ALL
 // #define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
-// #define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
+//#define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
 
 
 // see helpers.h for debug defines
@@ -562,7 +562,10 @@ void setup() {
     // the keypad matrix
     customKeypad.addEventListener(keypadEvent);
 
-
+    // the computer takes some time to work
+    // so wait here before all the BLE is working
+    //
+    delay(5000); // wait some time for init in the computer
 }
 
 
@@ -590,8 +593,8 @@ void setup() {
 
 void loop() {
 
-    PREV_SELECTOR = SELECTOR;
-    memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
+
+    
 
     //
     // read the keypad custom matrix for  buttons
@@ -610,6 +613,7 @@ void loop() {
         SIGNALS[S_SW2_1_S1] = ( (DATA >> 7) & 1UL ? 1 : 0);
         uint8_t SELECTOR_value = DATA & 15; // lower value;
         SELECTOR = SELECTOR_value;
+
         #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
             memset(line,0, LINE_SIZE);
             sprintf(line,"data: %x", DATA);
@@ -652,6 +656,7 @@ void loop() {
                 break;
         }
     }
+    
 
     // send the things here
     if ((memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) || (SELECTOR != PREV_SELECTOR)) {
@@ -659,6 +664,8 @@ void loop() {
         print_signals();
         #endif
         send_buttons();
+        PREV_SELECTOR = SELECTOR;
+        memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
     }
 
 end_loop:
