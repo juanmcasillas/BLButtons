@@ -125,12 +125,23 @@ void setup() {
     Serial.begin(115200);
     Serial.println("NanoWriter Started - writting on D9");
 #endif
+    delay(1000); // wait for ESP32 so the ESP32 begin init before us
     altSerial.begin(SERIAL_SPEED);
-    delay(100); // wait for ESP32 so the ESP32 begin init before us
+   
 }
 
 
+// each 1 secs, send it
+// #define DELAY_PERIOD 1000 
+// unsigned long timestamp = millis();
+// bool delay_happen = false;
+
 void loop() {
+    // delay_happen = false;
+    // if (millis() - timestamp > DELAY_PERIOD) {
+    //     delay_happen = true;
+    //     timestamp = millis();
+    // }
 
     for (int i=0; i< NUM_INPUTS; i++) {
         if (INPUT_PINS[i] != 0) {
@@ -174,9 +185,14 @@ void loop() {
         SELECTOR_value =  (SELECTOR_value & ~mask) |  (value << pos);
         pin++;
     }
-    //if (PREV_BUTTONS != BUTTONS) {
+
+    //if (PREV_BUTTONS != BUTTONS || (delay_happen) ) {
         altSerial.write( (uint8_t *) &SELECTOR_value, 1 );
-        PREV_BUTTONS = BUTTONS;
+        
+        // update if not forced
+        //if (!delay_happen) {
+            PREV_BUTTONS = BUTTONS;
+        //}
         #ifndef RELEASE
             print_state();
             memset(line, 0, LINE_SIZE);
@@ -184,6 +200,6 @@ void loop() {
             Serial.println(line);
         #endif
     //}
-    delay(DELAY_TIME);
+    delay(DELAY_TIME); 
 }
 

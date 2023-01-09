@@ -29,7 +29,7 @@
 #define DEBUG_ROTENC 0x20
 #define DEBUG_ALL    0xFF
 // #define DEBUG DEBUG_ALL
-// #define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
+#define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
 //#define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
 
 
@@ -509,8 +509,9 @@ void setup() {
     Serial.println("BL-Radio Started");
     #endif
     // serial port
+    delay(5000);
     DriverPort.begin(SERIAL_SPEED, SERIAL_8N1, PIN_RX, PIN_TX );
-    delay(500);
+    
 
 
     
@@ -565,7 +566,7 @@ void setup() {
     // the computer takes some time to work
     // so wait here before all the BLE is working
     //
-    delay(5000); // wait some time for init in the computer
+
 }
 
 
@@ -591,10 +592,17 @@ void setup() {
 */
 
 
+#define DELAY_PERIOD 5000 
+unsigned long timestamp = millis();
+bool waitting_delay = true;
+
 void loop() {
 
-
-    
+    waitting_delay = true;
+    if (millis() - timestamp > DELAY_PERIOD) {
+        waitting_delay = false;
+        timestamp = millis();
+    }
 
     //
     // read the keypad custom matrix for  buttons
@@ -657,9 +665,15 @@ void loop() {
         }
     }
     
-
+    /*
+    uint8_t sig = memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
+    memset(line,0, LINE_SIZE);
+    sprintf(line,"data: %x, %d, %d, %d", DATA, SELECTOR, PREV_SELECTOR, sig);
+    Serial.println(line);
+    */
+    
     // send the things here
-    if ((memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) || (SELECTOR != PREV_SELECTOR)) {
+    if ((memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) || (SELECTOR != PREV_SELECTOR) || (!waitting_delay)) {
         #if !defined(RELEASE) && (DEBUG & DEBUG_SIGNALS)
         print_signals();
         #endif
