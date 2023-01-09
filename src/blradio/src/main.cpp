@@ -28,9 +28,9 @@
 #define DEBUG_KEYS   0x10
 #define DEBUG_ROTENC 0x20
 #define DEBUG_ALL    0xFF
-//#define DEBUG DEBUG_ALL
-//#define DEBUG DEBUG_BUTTON               /* define this to debug extra info */
-//#define TESTING 1                        /* undefine this to use the real BL stack. Clean All and build */
+// #define DEBUG DEBUG_ALL
+// #define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
+// #define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
 
 
 // see helpers.h for debug defines
@@ -246,6 +246,10 @@ uint8_t keymap_signals[] = {
 unsigned char SIGNALS[MAX_SIGNALS]      = { 0 };
 unsigned char PREV_SIGNALS[MAX_SIGNALS] = { 0 };
 
+// 
+// data (single serial byte)
+//
+uint8_t DATA;
 
 // max buttons: 35 
 // rotenc = 15 buttons. (12 counting only the last row)
@@ -330,53 +334,15 @@ unsigned char BUTTON_MAP[] = {
 
 
 
-word SELECTOR;                // manages the state of the central selector (helpers.h)
- 
+uint8_t SELECTOR;                // manages the state of the central selector (helpers.h)
+uint8_t PREV_SELECTOR;
+
 Ticker periodicTicker;
 #define DELAY_TIME 50           // time to wait in the loop()
 #define EXPANDER_ADDESS 0x23
 PCF8574 pcf8574(EXPANDER_ADDESS);
 
 HardwareSerial DriverPort( 1 );
-
-/**
- * @brief maps the selector signal to a number
- * 
- * @param buttons 
- * @return unsigned char 
-*/
-unsigned char selector_map(unsigned long buttons) {
-
-    //
-    // bits in the signals are no consecutive, due the 
-    // nature of pins in the NANO, so I have to manage
-    // the signal bitmap and build a "normalized"
-    // integer. 0 means spureus contact, so just skip
-    // it.
-
-    word SELECTOR_value = buttons & 0xFFFFUL; // 16 first bytes
-    SELECTOR_value = SELECTOR_value >> 2; // reduce the value
-    // to get the number of bits used to generate the number.
-    //word bits = (log (SELECTOR_value) / log (2));
-    
-    unsigned char ret;
-    switch (SELECTOR_value) {
-        case 1:    ret = 1;  break;
-        case 2:    ret = 2;  break;
-        case 4:    ret = 3;  break;
-        case 8:    ret = 4;  break;
-        case 16:   ret = 5;  break;
-        case 32:   ret = 6;  break;
-        case 256:  ret = 7;  break;
-        case 512:  ret = 8;  break;
-        case 1024: ret = 9;  break;
-        case 4096: ret = 10; break;
-        case 8192: ret = 11; break;
-        default:   ret =  0; break;
-    }
-    return ret;
-}
-
 
 /**
  * @brief process the rotary encoders periodically 1ms
@@ -440,7 +406,6 @@ void send_buttons() {
                 
                 #ifndef TESTING
                     Gamepad.press(button_map);
-                    Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
                 #endif
             }
             else {
@@ -451,13 +416,12 @@ void send_buttons() {
                 #endif
                 #ifndef TESTING
                     Gamepad.release(button_map);
-                    Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
                 #endif
             }
         }
         // I could use the POVS to map additional buttons.
         #ifndef TESTING
-            //Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
+            Gamepad.setAxes(0, 0, 0, 0, 0, 0, 0, 0, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED, DPAD_CENTERED);
             //Gamepad.sendAllButtons();
         #endif
     }
@@ -541,7 +505,7 @@ void print_signals() {
 */
 void setup() {
     #ifndef RELEASE
-    Serial.begin (921600);
+    Serial.begin (115200);
     Serial.println("BL-Radio Started");
     #endif
     // serial port
@@ -593,6 +557,7 @@ void setup() {
 
     // selector init mode
     SELECTOR = 1;
+    PREV_SELECTOR = 0;
 
     // the keypad matrix
     customKeypad.addEventListener(keypadEvent);
@@ -622,9 +587,10 @@ void setup() {
  * 
 */
 
+
 void loop() {
 
-    PREV_BUTTONS = BUTTONS;
+    PREV_SELECTOR = SELECTOR;
     memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
 
     //
@@ -635,71 +601,20 @@ void loop() {
     // 
     // read the data from serial This must be encapsulated in a function.
     // 
-    while ( DriverPort.available() ) {
-        uint8_t data[6]; // size of serial_package_s;
-        data[0] = DriverPort.read();
-        if (data[0] != PACKET_HEADER) {
-            #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
-            memset(line, 0, LINE_SIZE);
-            sprintf(line,"Warning: bad serial data %x [header expected %x]",data[0],PACKET_HEADER);
-            Serial.println(line);
-            #endif
-            continue;
-        }
 
-        for (int i=1; i< PACKET_SIZE; i++) {
-            data[i] = DriverPort.read();
-        }
-        PACKET.header = data[0];
-        PACKET.data   = data[1] | (data[2] << 8) | (data[3] << 16) | (data[4] << 24);
-        PACKET.footer = data[5];
-
-        if (PACKET.header == PACKET_HEADER && PACKET.footer == PACKET_FOOTER) {
-            BUTTONS = PACKET.data;
-        }
-        else {
-            // some problem with the serial port.
-            #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
-            Serial.println("Warning: bad serial packet received");
-            #endif
-        }
-        #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
-            memset(line, 0, LINE_SIZE);
-            sprintf(line,"Serial line data: %x %x %x %x %x %x",data[0], data[1],data[2],data[3],data[4],data[5]);
-            Serial.println(line);
-        #endif
-        break;
-    }
-    if (PREV_BUTTONS != BUTTONS) {
-        #if !defined(RELEASE) && (DEBUG & DEBUG_STATE)        
-            print_state();
-        #endif
-
-        // process the selector.
-
-        SIGNALS[S_1P12T_1 ] = get_bit(NANO_BITS[S_1P12T_1 ]);
-        SIGNALS[S_1P12T_2 ] = get_bit(NANO_BITS[S_1P12T_2 ]);
-        SIGNALS[S_1P12T_3 ] = get_bit(NANO_BITS[S_1P12T_3 ]);
-        SIGNALS[S_1P12T_4 ] = get_bit(NANO_BITS[S_1P12T_4 ]);
-        SIGNALS[S_1P12T_5 ] = get_bit(NANO_BITS[S_1P12T_5 ]);
-        SIGNALS[S_1P12T_6 ] = get_bit(NANO_BITS[S_1P12T_6 ]);
-        SIGNALS[S_1P12T_7 ] = get_bit(NANO_BITS[S_1P12T_7 ]);
-        SIGNALS[S_1P12T_8 ] = get_bit(NANO_BITS[S_1P12T_8 ]);
-        SIGNALS[S_1P12T_9 ] = get_bit(NANO_BITS[S_1P12T_9 ]);
-        SIGNALS[S_1P12T_10] = get_bit(NANO_BITS[S_1P12T_10]);
-        SIGNALS[S_1P12T_11] = get_bit(NANO_BITS[S_1P12T_11]);
-        
-        SIGNALS[S_SW2_1_S1] = get_bit(NANO_BITS[S_SW2_2_S2]);   // bad wiring. remap here.
-        SIGNALS[S_SW2_1_S2] = get_bit(NANO_BITS[S_SW2_2_S1]);
-        SIGNALS[S_SW2_2_S1] = get_bit(NANO_BITS[S_SW2_1_S2]);
-        SIGNALS[S_SW2_2_S2] = get_bit(NANO_BITS[S_SW2_1_S1]);
-
-        word SELECTOR_value = selector_map(BUTTONS);
-        if (SELECTOR_value == 0) {
-            // skip it because it's a bounce. Wait for the new
-            goto end_loop;
-        }
+    if ( DriverPort.available() ) {
+        DATA = DriverPort.read();
+        SIGNALS[S_SW2_2_S2] = ( (DATA >> 4) & 1UL ? 1 : 0);
+        SIGNALS[S_SW2_2_S1] = ( (DATA >> 5) & 1UL ? 1 : 0);
+        SIGNALS[S_SW2_1_S2] = ( (DATA >> 6) & 1UL ? 1 : 0);
+        SIGNALS[S_SW2_1_S1] = ( (DATA >> 7) & 1UL ? 1 : 0);
+        uint8_t SELECTOR_value = DATA & 15; // lower value;
         SELECTOR = SELECTOR_value;
+        #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
+            memset(line,0, LINE_SIZE);
+            sprintf(line,"data: %x", DATA);
+            Serial.println(line);
+        #endif
     }
 
     // 
@@ -711,7 +626,6 @@ void loop() {
     SIGNALS[S_SW1_4_S1] = ( digitalRead(PIN_SW1_4_S1) == 0 ? 0 : 1 );
     SIGNALS[S_SW1_5_S1] = ( digitalRead(PIN_SW1_5_S1) == 0 ? 0 : 1 );
     SIGNALS[S_SW1_6_S1] = ( digitalRead(PIN_SW1_6_S1) == 0 ? 0 : 1 );
-
 
     for (int i=0; i< MAX_ROTARIES; i++) {
 
@@ -740,7 +654,7 @@ void loop() {
     }
 
     // send the things here
-    if (memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) {
+    if ((memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) || (SELECTOR != PREV_SELECTOR)) {
         #if !defined(RELEASE) && (DEBUG & DEBUG_SIGNALS)
         print_signals();
         #endif

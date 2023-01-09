@@ -79,8 +79,6 @@ uint8_t get_bit_data(unsigned long data, unsigned long pos) {
  * @return unsigned long 
 */
 unsigned long set_bit(unsigned long pos, unsigned long val)  {
-    unsigned long int mask = (unsigned long)1 << pos;
-
     BUTTONS = set_bit_data(BUTTONS, pos, val);
     return BUTTONS;
 }
