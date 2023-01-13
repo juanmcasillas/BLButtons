@@ -1,0 +1,16 @@
+{
+    "device": "BL-Radio",
+    "voice": "ZIRA",
+    "commands": [
+        {  
+            "name": "Button 1",
+            "msg" : "AutoPilot Engaged",
+            "on"  : "press"
+        },
+        {  
+            "name": "Button 1",
+            "msg" : "Autopilot disengaged",
+            "on"  : "release"
+        }
+    ]
+}
