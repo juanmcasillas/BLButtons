@@ -18,7 +18,7 @@ import platform
 import warnings
 warnings.filterwarnings("ignore")
 # python39\lib\site-packages\pyglet\libs\win32\__init__.py:326: UserWarning: Could not set COM MTA mode. Unexpected behavior may occur.
-# E:\Software\python39\Scripts\pip.exe install pywinusb
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -39,26 +39,21 @@ if __name__ == "__main__":
         output_fd = open(args.logfile,"w+")
         OutputManager.config(output_fd) 
 
-
-
-
     if CONFIG().verbose >= 1:
-        OutputManager.log("{:-<80}".format('- Configured Commands for device: %s ' % CONFIG().device))
-        OutputManager.log("{:<20} {:<30} {:<20}".format("button", "msg", "on"))
-        OutputManager.log("{:-<80}".format('-'))
-        for i in CONFIG().commands:
-            OutputManager.log("{:<20} {:<30} {:<20}".format(i['name'], i['msg'], i['on']))
+        for device in CONFIG().devices:
+            OutputManager.log("{:-<80}".format('- Configured Commands for device: %s ' % device["name"]))
+            OutputManager.log("{:<20} {:<30} {:<20}".format("button", "msg", "on"))
+            OutputManager.log("{:-<80}".format('-'))
+            for i in device["commands"]:
+                OutputManager.log("{:<20} {:<30} {:<20}".format(i['name'], i['msg'], i['on']))
         
-
-    manager = VoiceButtonsClass(CONFIG().voice)
-
-
     if args.list:
         manager.list_devices()
         sys.exit(0)
 
+    manager = VoiceButtonsClass(CONFIG().voice)
 
-    manager.add_device(CONFIG().device, CONFIG().commands)
+    for device in CONFIG().devices:
+        manager.add_device(device["name"], device["commands"])
+
     manager.run()
-   
-    

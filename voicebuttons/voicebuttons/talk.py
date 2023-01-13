@@ -33,7 +33,7 @@ class TalkClass:
         self.speaker.Speak(text)
 
 
-def map_control(device, control, onevent, msg, button, talk):
+def map_control(device_name, control, onevent, msg, button, talk):
     if isinstance(control, pyglet.input.base.Button):
 
         if onevent == "press":
@@ -41,8 +41,7 @@ def map_control(device, control, onevent, msg, button, talk):
             def on_press():
                 talk.speak(msg)
                 if CONFIG().verbose > 2:
-                    #OutputManager.log('%s: %r.on_press()' % (device.name, control))
-                    OutputManager.log('%s: %s.on_press() [%s]' % (device.name, button, msg))
+                    OutputManager.log('%s: %s.on_press() [%s]' % (device_name, button, msg))
 
 
         if onevent == "release":
@@ -50,30 +49,30 @@ def map_control(device, control, onevent, msg, button, talk):
             def on_release():
                 talk.speak(msg)
                 if CONFIG().verbose > 2:
-                    #OutputManager.log('%s: %r.on_release()' % (device.name, control))
-                    OutputManager.log('%s: %s.on_press() [%s]' % (device.name, button, msg))
+                    OutputManager.log('%s: %s.on_press() [%s]' % (device_name, button, msg))
 
 
 class VoiceButtonsClass:
     def __init__(self, voice):
-        self.device = None
+        self.devices = {}
         self.talk = TalkClass()
         self.talk.set_voice(voice)
 
     def add_device(self, device_name, commands):
 
-        self.device = None
+        device = None
         devices = pyglet.input.get_devices()
         for dev in devices:
             if dev.name == device_name:
-                self.device = dev
+                device = dev
                 break
 
-        if not self.device:
-            raise Exception("can't find device %s" % device_name)
+        if not device:
+            raise Warning("can't find device %s" % device_name)
 
-        self.device.open()
-        controls = self.device.get_controls()
+        self.devices[device_name] = device
+        self.devices[device_name].open()
+        controls = self.devices[device_name].get_controls()
 
         if CONFIG().verbose > 1:
             OutputManager.log("{:-<80}".format('-'))
@@ -95,41 +94,13 @@ class VoiceButtonsClass:
                        
                     if full_name == command["name"]:
                         text = msg.format(button=button, on=onevent)
-                        map_control(self.device, control, onevent, text, full_name, self.talk)
-                        # only work on buttons, for now.
-                        # if isinstance(control, pyglet.input.base.Button) and onevent in [ "press"]:
-                        #     @control.event
-                        #     def on_press():
-                        #         if CONFIG().verbose > 2:
-                        #             OutputManager.log('%s: %s.on_press()' % (self.device, control.raw_name))
-                        #             self.talk.speak(msg.format(button=button, on=onevent))
-
-                        # if isinstance(control, pyglet.input.base.Button) and onevent in [ "release"]:
-                        #     @control.event
-                        #     def on_release():
-                        #         if CONFIG().verbose > 2:
-                        #             OutputManager.log('%s: %s.on_release()' % (self.device, control.raw_name))
-                        #             self.talk.speak(msg.format(button=button, on=onevent))
+                        map_control(device_name, control, onevent, text, full_name, self.talk)
                         if CONFIG().verbose > 1:
-                            OutputManager.log("Mapped '%s' on '%s' (event: %s) msg: %s" % (command["name"], control.raw_name, onevent, msg))
+                            OutputManager.log("Mapped %s:%s on '%s' (event: %s) msg: %s" % (device_name,command["name"], control.raw_name, onevent, msg))
              
 
                     
     def list_devices(self):
-
-        #print(f"0x{device['vendor_id']:04x}:0x{device['product_id']:04x} {}")
-        # 0x2341:0x8036 Arduino Leonardo
-        # 0x8087:0x0a1e 
-        # 0x2341:0x8036 Arduino Leonardo
-        # 0x3344:0x82c4 L-VPC Rotor TCS
-        # 0x1e7d:0x2e22 ROCCAT Kone XTD
-        # 0x3344:0x82c4 L-VPC Rotor TCS
-        # 0xac05:0x0a82 BL-Combo (KMG)
-        # 0x1c4f:0x0034 Usb Mouse
-        # 0x044f:0xb68f T-Pendular-Rudder
-        # 0xac05:0x0a82 BL-Combo (KMG)
-        # 0xac05:0x0a82 BL-Combo (KMG)
-        # 0xbd05:0x0b82 BL-Radio
 
         names = []
         OutputManager.log("{:-<80}".format('- Avaliable devices '))
@@ -141,8 +112,6 @@ class VoiceButtonsClass:
         
         for n in names:
             OutputManager.log(n)
-            
-
 
     def run(self):
         pyglet.app.run()

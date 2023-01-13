@@ -1,16 +1,36 @@
 {
-    "device": "BL-Radio",
     "voice": "ZIRA",
-    "commands": [
-        {  
-            "name": "Button 1",
-            "msg" : "AutoPilot Engaged",
-            "on"  : "press"
+    "devices": [
+        { 
+            "name": "BL-Radio",
+            "commands": [
+                {  
+                    "name": "Button 1",
+                    "msg" : "AutoPilot Engaged",
+                    "on"  : "press"
+                },
+                {  
+                    "name": "Button 1",
+                    "msg" : "Autopilot disengaged",
+                    "on"  : "release"
+                }
+            ]
         },
-        {  
-            "name": "Button 1",
-            "msg" : "Autopilot disengaged",
-            "on"  : "release"
-        }
-    ]
-}
+        { 
+            "name": "BL-Buttons",
+            "commands": [
+                {  
+                    "name": "Button 1",
+                    "msg" : "Say 1",
+                    "on"  : "press"
+                },
+                {  
+                    "name": "Button 1",
+                    "msg" : "Say 2",
+                    "on"  : "release"
+                }
+            ]
+        },
+        
+
+    }
