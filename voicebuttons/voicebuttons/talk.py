@@ -30,7 +30,32 @@ class TalkClass:
         self.speaker.SetVoice(vcs.Item(TalkClass.voices[voice]))
 
     def speak(self, text):
-        self.speaker.Speak(text)
+        flags = 1 
+        # https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms720892(v=vs.85)
+        # 'SpVoice Flags
+        # SVSFDefault = 0
+        # SVSFlagsAsync = 1
+        # SVSFPurgeBeforeSpeak = 2
+        # SVSFIsFilename = 4
+        # SVSFIsXML = 8
+        # SVSFIsNotXML = 16
+        # SVSFPersistXML = 32
+
+        # 'Normalizer Flags
+        # SVSFNLPSpeakPunc = 64
+
+        # 'TTS Format
+        # SVSFParseSapi = 
+        # SVSFParseSsml = 
+        # SVSFParseAutoDetect = 
+
+        # 'Masks
+        # SVSFNLPMask = 64
+        # SVSFParseMask = 
+        # SVSFVoiceMask = 127
+        # SVSFUnusedFlags = -128
+        flags = 1 | 2   # SVSFlagsAsync | SVSFPurgeBeforeSpeak 
+        self.speaker.Speak(text, flags)
 
 
 def map_control(device_name, control, onevent, msg, button, values, talk, parent):
@@ -53,9 +78,6 @@ def map_control(device_name, control, onevent, msg, button, values, talk, parent
 
         
         if onevent == "toggle":
-
-
-            
 
             @control.event
             def on_press():
