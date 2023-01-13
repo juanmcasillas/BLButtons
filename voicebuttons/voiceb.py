@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if CONFIG().verbose >= 1:
         for device in CONFIG().devices:
             OutputManager.log("{:-<80}".format('- Configured Commands for device: %s ' % device["name"]))
-            OutputManager.log("{:<20} {:<30} {:<20}".format("button", "msg", "on"))
+            OutputManager.log("{:<20} {:<30} {:<20}".format("button", "msg", "event (press/release/toggle)"))
             OutputManager.log("{:-<80}".format('-'))
             for i in device["commands"]:
                 OutputManager.log("{:<20} {:<30} {:<20}".format(i['name'], i['msg'], i['on']))

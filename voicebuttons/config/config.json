@@ -5,20 +5,10 @@
             "name": "BL-Radio",
             "commands": [
                 {  
-                    "name": "Button 1",
-                    "msg" : "AutoPilot Engaged",
-                    "on"  : "press"
-                },
-                {  
-                    "name": "Button 1",
-                    "msg" : "Autopilot disengaged",
-                    "on"  : "release"
-                },
-                {  
-                    "name"  : "Button 2",
-                    "msg"   : "Toogle {status}",
+                    "name"  : "Button 1",
+                    "msg"   : "AutoPilot {status}",
                     "on"    : "toggle",
-                    "values": [ "On", "Off" ]
+                    "values": ["Engaged","Disengaged"]
                 }
             ]
         },
