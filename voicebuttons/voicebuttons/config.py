@@ -19,10 +19,9 @@ import os.path
 
 class ConfigClass:
     "must match exactly the json file"
-    def __init__(self, device, voice="ZIRA", commands=[]):
-        self.device = device
+    def __init__(self, devices, voice="ZIRA"):
         self.voice = voice
-        self.commands = commands
+        self.devices = devices
 
         # options set by config_set()
         self.verbose = 0

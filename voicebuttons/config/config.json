@@ -13,24 +13,24 @@
                     "name": "Button 1",
                     "msg" : "Autopilot disengaged",
                     "on"  : "release"
+                },
+                {  
+                    "name"  : "Button 2",
+                    "msg"   : "Toogle {status}",
+                    "on"    : "toggle",
+                    "values": [ "On", "Off" ]
                 }
             ]
         },
         { 
-            "name": "BL-Buttons",
+            "name": "BL-Combo (KMG)",
             "commands": [
                 {  
-                    "name": "Button 1",
-                    "msg" : "Say 1",
+                    "name": "Button 19",
+                    "msg" : "Eject",
                     "on"  : "press"
-                },
-                {  
-                    "name": "Button 1",
-                    "msg" : "Say 2",
-                    "on"  : "release"
                 }
             ]
-        },
-        
-
-    }
+        }
+    ]
+}

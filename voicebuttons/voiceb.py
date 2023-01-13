@@ -46,12 +46,12 @@ if __name__ == "__main__":
             OutputManager.log("{:-<80}".format('-'))
             for i in device["commands"]:
                 OutputManager.log("{:<20} {:<30} {:<20}".format(i['name'], i['msg'], i['on']))
-        
+
+    manager = VoiceButtonsClass(CONFIG().voice)    
+    
     if args.list:
         manager.list_devices()
         sys.exit(0)
-
-    manager = VoiceButtonsClass(CONFIG().voice)
 
     for device in CONFIG().devices:
         manager.add_device(device["name"], device["commands"])
