@@ -14,7 +14,10 @@ do
 		_voiceb.net=require("voicebNetwork")
         _voiceb.net.start()
         local _send={}
-		_voiceb.net.send("ready")
+		_send["cmd"]="start"
+		_send["value"]=true
+		local _msg =  _voiceb.json:encode(_send)
+		_voiceb.net.send(_msg)
 		do
 
 			_voiceb.LuaExportStart=function()
@@ -45,7 +48,7 @@ do
 			_voiceb.LuaExportStop=function()
                 local _send={}
                 _send["cmd"]="exit"
-                _send["value"]="true"
+                _send["value"] = true
                 local _msg =  _voiceb.json:encode(_send)
 				_voiceb.net.send(_msg)
 				log.write("voiceB",log.INFO,"Export stop!")

@@ -40,7 +40,7 @@
                             "name"  : "Button 1",
                             "msg"   : "AutoPilot {status}",
                             "on"    : "toggle",
-                            "values": ["Engaged","Disengaged"]
+                            "values": ["ON","OFF"]
                         }
                     ]
                 },
