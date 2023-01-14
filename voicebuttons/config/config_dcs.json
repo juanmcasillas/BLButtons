@@ -11,20 +11,29 @@
                     "name": "BL-Radio",
                     "commands": [
                         {  
-                            "name"  : "Button 1",
-                            "msg"   : "AutoPilot {status}",
-                            "on"    : "toggle",
-                            "values": ["Engaged","Disengaged"]
-                        }
-                    ]
-                },
-                { 
-                    "name": "BL-Combo (KMG)",
-                    "commands": [
+                            "name"  : "Button 121",
+                            "msg"   : "Uniform radio",
+                            "on"    : "press"
+                        },
                         {  
-                            "name": "Button 19",
-                            "msg" : "Eject",
-                            "on"  : "press"
+                            "name"  : "Button 122",
+                            "msg"   : "NAV radio",
+                            "on"    : "press"
+                        },
+                        {  
+                            "name"  : "Button 123",
+                            "msg"   : "Alpha Mike radio",
+                            "on"    : "press"
+                        },
+                        {  
+                            "name"  : "Button 124",
+                            "msg"   : "Fox Mike radio",
+                            "on"    : "press"
+                        },
+                        {  
+                            "name"  : "Button 125",
+                            "msg"   : "ADF radio",
+                            "on"    : "press"
                         }
                     ]
                 }
@@ -38,7 +47,7 @@
                     "commands": [
                         {  
                             "name"  : "Button 1",
-                            "msg"   : "AutoPilot {status}",
+                            "msg"   : "default AutoPilot {status}",
                             "on"    : "toggle",
                             "values": ["ON","OFF"]
                         }
