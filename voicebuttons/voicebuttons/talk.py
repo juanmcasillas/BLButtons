@@ -12,6 +12,7 @@ import socket
 from time import sleep
 import json
 from types import SimpleNamespace
+from datetime import datetime
 
 from .output import OutputManager
 from .config import CONFIG
@@ -73,7 +74,11 @@ def map_control(device_name, control, onevent, msg, button, values, talk, parent
         if onevent == "press":
             @control.event
             def on_press():
-                talk.speak(msg)
+                msg_l = msg
+                if msg_l.find("$time") >=0:
+                    repl = datetime.now().strftime("%H %M")
+                    msg_l = msg_l.replace("$time", repl)
+                talk.speak(msg_l)
                 if CONFIG().verbose > 2:
                     OutputManager.log('%s: %s.on_press() [%s]' % (device_name, button, msg))
 

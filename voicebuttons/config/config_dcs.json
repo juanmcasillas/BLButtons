@@ -36,6 +36,16 @@
                             "on"    : "press"
                         }
                     ]
+                },
+                { 
+                    "name": "BL-Combo (KMG)",
+                    "commands": [
+                        {  
+                            "name": "Button 13",
+                            "msg" : "{time}",
+                            "on"  : "press"
+                        }
+                    ]
                 }
             ]
         },
