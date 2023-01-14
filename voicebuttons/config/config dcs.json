@@ -1,0 +1,60 @@
+{
+    "voice": "ZIRA",
+    "addr": "127.0.0.1",
+    "port": 64998,
+    "delay": 0.1,
+    "mods": [
+        {
+            "name": "UH-1H",
+            "devices": [
+                { 
+                    "name": "BL-Radio",
+                    "commands": [
+                        {  
+                            "name"  : "Button 1",
+                            "msg"   : "AutoPilot {status}",
+                            "on"    : "toggle",
+                            "values": ["Engaged","Disengaged"]
+                        }
+                    ]
+                },
+                { 
+                    "name": "BL-Combo (KMG)",
+                    "commands": [
+                        {  
+                            "name": "Button 19",
+                            "msg" : "Eject",
+                            "on"  : "press"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "default",
+            "devices": [
+                { 
+                    "name": "BL-Radio",
+                    "commands": [
+                        {  
+                            "name"  : "Button 1",
+                            "msg"   : "AutoPilot {status}",
+                            "on"    : "toggle",
+                            "values": ["Engaged","Disengaged"]
+                        }
+                    ]
+                },
+                { 
+                    "name": "BL-Combo (KMG)",
+                    "commands": [
+                        {  
+                            "name": "Button 19",
+                            "msg" : "Eject",
+                            "on"  : "press"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]   
+}
