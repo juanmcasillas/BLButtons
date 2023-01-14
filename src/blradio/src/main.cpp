@@ -203,6 +203,31 @@ unsigned char rotenc_map[MAX_ROTARIES][2] = {
     { S_ROT_5_LEFT, S_ROT_5_RIGHT },
 };
 
+// 
+// define the signals for the mode selector
+//
+
+#define S_MODE_1      47
+#define S_MODE_2      48
+#define S_MODE_3      49
+#define S_MODE_4      50
+#define S_MODE_5      51
+#define S_MODE_6      52
+#define S_MODE_7      53
+#define S_MODE_8      54
+#define MAX_MODES      8
+
+unsigned char mode_map[MAX_MODES] = {
+    S_MODE_1,
+    S_MODE_2,
+    S_MODE_3,
+    S_MODE_4,
+    S_MODE_5,
+    S_MODE_6,
+    S_MODE_7,
+    S_MODE_8
+};
+
 //
 // keypad matrix.
 //
@@ -242,7 +267,7 @@ uint8_t keymap_signals[] = {
 // 
 // signal container
 //
-#define MAX_SIGNALS 47
+#define MAX_SIGNALS 56
 unsigned char SIGNALS[MAX_SIGNALS]      = { 0 };
 unsigned char PREV_SIGNALS[MAX_SIGNALS] = { 0 };
 
@@ -329,9 +354,24 @@ unsigned char BUTTON_MAP[] = {
 24, // S_ROT_1_LEFT  
 26, // S_ROT_1_RIGHT 
 21, // S_ROT_5_LEFT  
-23  // S_ROT_5_RIGHT 
+23, // S_ROT_5_RIGHT
+
+// 
+// the mode selector now sends buttons
+// FIRST_MODE_BUTTON to avoid mapping over
+
+121, // S_MODE_1
+122, // S_MODE_2
+123, // S_MODE_3
+124, // S_MODE_4
+125, // S_MODE_5
+126, // S_MODE_6
+127, // S_MODE_7
+128  // S_MODE_8
+
 };
 
+#define FIRST_MODE_BUTTON 121
 
 
 uint8_t SELECTOR;                // manages the state of the central selector (helpers.h)
@@ -371,7 +411,7 @@ void timer_isr() {
 uint8_t button_mapping(uint8_t signal_num) {
     uint8_t button_map = BUTTON_MAP[signal_num];
 
-    if (button_map > LAST_FIXED_BUTTON) {
+    if (button_map > LAST_FIXED_BUTTON && button_map < FIRST_MODE_BUTTON) {
         button_map = button_map + ((SELECTOR - 1) * 12);
     }
     return button_map;
@@ -509,7 +549,7 @@ void setup() {
     Serial.println("BL-Radio Started");
     #endif
     // serial port
-    delay(5000);
+    delay(1000);
     DriverPort.begin(SERIAL_SPEED, SERIAL_8N1, PIN_RX, PIN_TX );
     
 
@@ -592,7 +632,7 @@ void setup() {
 */
 
 
-#define DELAY_PERIOD 5000 
+#define DELAY_PERIOD 2000 
 unsigned long timestamp = millis();
 bool waitting_delay = true;
 
@@ -621,6 +661,12 @@ void loop() {
         SIGNALS[S_SW2_1_S1] = ( (DATA >> 7) & 1UL ? 1 : 0);
         uint8_t SELECTOR_value = DATA & 15; // lower value;
         SELECTOR = SELECTOR_value;
+
+        for (int i=0; i< MAX_MODES; i++) {
+            unsigned char signal_id = mode_map[i];
+            unsigned char signal_value = ( SELECTOR-1 == i ? 1 : 0 );
+            SIGNALS[signal_id] = signal_value;
+        }
 
         #if !defined(RELEASE) && (DEBUG & DEBUG_SERIAL)
             memset(line,0, LINE_SIZE);
@@ -665,12 +711,7 @@ void loop() {
         }
     }
     
-    /*
-    uint8_t sig = memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
-    memset(line,0, LINE_SIZE);
-    sprintf(line,"data: %x, %d, %d, %d", DATA, SELECTOR, PREV_SELECTOR, sig);
-    Serial.println(line);
-    */
+
     
     // send the things here
     if ((memcmp(PREV_SIGNALS, SIGNALS, MAX_SIGNALS) != 0) || (SELECTOR != PREV_SELECTOR) || (!waitting_delay)) {
@@ -682,11 +723,7 @@ void loop() {
         memcpy(PREV_SIGNALS, SIGNALS, MAX_SIGNALS);
     }
 
-end_loop:
-    // maybe it's going to be removed
-    // delay(DELAY_TIME);
-    // waits on serial input
-    ;
+
 }
 
 
