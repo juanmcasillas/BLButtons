@@ -1,10 +1,17 @@
+# BL-Radio
+
+Implement a generic radio control panel for DCS. Support multiple profiles, button mapping, and works as BLE wireless gamepad device.
+
+# Requirements
+
+```
 Lights:
 
-    taxi lights (left, right)
-    nav lights 
-    landing lights (left, right)
-    anti collision lights
-    formation lights
+   - taxi lights (left, right)
+   - nav lights 
+   - landing lights (left, right)
+   - anti collision lights
+   - formation lights
     
     - internal lights
     - dim 
@@ -27,11 +34,9 @@ TACAN
     1 tacan mode: (off, t/r, a/a rec a/a t/r)
     1 nav_mode (df, tacan)
 
-
 HSI
     1 knob for HDG
     1 knob for CRS
-
 
 C101
 ADF
@@ -74,7 +79,9 @@ AN/AR-83 ADF
     1 adf band selector (3 pos)
     1 tunning knob
     1 adf gain
+```
 
+```
 Pro MICRO inputs
 
 ENCODERS:
@@ -124,9 +131,9 @@ https://github.com/RobTillaart/PCF8574/issues/27
 1 expansor para los switches de 2 vias + 1 de tres vias (8 inputs) 0x2
 1 expansor para los encoders (4 * 2) 8 inputs.
 2 + 6 = 8 PINS.
+```
 
 
-|-------|-----------------------|----------------------|
 | PIN   | TO                    | NOTES                |
 |-------|-----------------------|---------------------:|
 Button matrix: 9 values, 3x3 matrix
@@ -136,8 +143,7 @@ Button matrix: 9 values, 3x3 matrix
 | 26    | ROW_0                 |                      |
 | 25    | ROW_1                 |                      |
 | 33    | ROW_2                 | CH_4 ADC1 together   |
-|-------|-----------------------|----------------------|
-MODE_SELECTOR = 12 values, 3x4 matrix
+| MODE_SELECTOR = 12 values, 3x4 matrix
 | 4     | ROW_0                 | Pulled up            |
 | 16    | ROW_1                 | Connected to LED     |
 | 17    | ROW_2                 |                      |
@@ -145,26 +151,25 @@ MODE_SELECTOR = 12 values, 3x4 matrix
 | 19    | COL_1                 |                      |
 | 23    | COL_2                 |                      |
 | 32    | COL_3                 | CH_5 ADC1            |
-|-------|-----------------------|----------------------|
-maybe use the 5th element.
+| maybe use the 5th element.
 | 15    | ENCODER_5 SW          |                      |
 | 34    | ENCODER_5 DT          | CH_7 ADC1 only IN    | 
 | 35    | ENCODER_5 CLK         | CH_6 ADC1 only IN    |
-|-------|-----------------------|----------------------|
+| --
 | 21    | SDA                   |                      |
 | 22    | SCL                   |                      |
-|-------|-----------------------|----------------------|
+| --
 | 2     |                       | low or won't flash   | 
 | 5     |                       | Boot Fail if HIGH    |
 | 12    |                       |                      | 
-|-------|-----------------------|----------------------|
+| --
 |       | free pins             |                      |
-|-------|-----------------------|----------------------|
-|-------|-----------------------|----------------------|
+| --
+| --
 | 0     |                       | not use              |
-|-------|-----------------------|----------------------|
+| --
 
-
+```
 LAST CALCULATION.
 Buttons must be momentary in order to work with the KEYPAD.
 
@@ -188,9 +193,11 @@ TOTALS:
              SW:       1 signal on GPIO2
              CLK/DT    2 signals on GPIO5, GPIO12
   5x buttons:          5 signals in the keypad button.
+```
 
 ## after implementing the Serial bridge between Arduino Nano & ESP32
 
+```
 So:
   Mode selector: 12 Signals from 15 available using GPIO27,GPIO26 [3 available, frees 4 GPIO[4,16,17,18,19,23,32], used on Serial]
   5 3-way: (10 signals, using 8 in one expansor I2C using 2 in the other expansor.
@@ -212,21 +219,14 @@ So:
 
                        ?? 1 signal 2 GPIO available [Serial]
                        ?? 4 signal available on keypad.
- 
-
   4 free gpios mean instead 3x3 (9) 4x4 (16) -> 7 more buttons !!! [13,14]
+```
 
+## After getting al the components:
 
-
-
-
-23-12-2022
-After getting al the components:
-
-|-------|-----------------------|----------------------|
 | PIN   | TO                    | NOTES                |
 |-------|-----------------------|---------------------:|
-Button matrix: 16 values, 4x4 matrix
+| Button matrix: 16 values, 4x4 matrix
 | 13    | ROW_0                 |                      |
 | 25    | ROW_1                 |                      |
 | 33    | ROW_2                 | CH_4 ADC1 together   |
@@ -235,37 +235,27 @@ Button matrix: 16 values, 4x4 matrix
 | 18    | COL_1                 |                      |
 | 19    | COL_2                 |                      |
 | 23    | COL_3                 |                      |
-|-------|-----------------------|----------------------|
-MODE_SELECTOR = 12 values, 12 signals, 2 GPIO [Serial]
+| MODE_SELECTOR = 12 values, 12 signals, 2 GPIO [Serial]
 | 27    | RX                    |                      |
 | 26    | TX                    |                      |
-|-------|-----------------------|----------------------|
-Expansors I2C
-|-------|-----------------------|----------------------|
+| Expansors I2C
 | 21    | SDA                   |                      |
 | 22    | SCL                   |                      |
-|-------|-----------------------|----------------------|
 | 2     |  2W                   | low or won't flash   | 
 | 4     |  2W                   | Pulled up            |
 | 5     |  2W                   | Boot Fail if HIGH    |
 | 12    |  2W                   | cant be pulled HIGH  | 
 | 14    |  2W                   | Boot Fail if HIGH    |
 | 15    |  2W                   |                      |
-Extra encoders 
+| Extra encoders 
 | 34    |                       | CH_7 ADC1 only IN    | 
 | 35    |                       | CH_6 ADC1 only IN    |
-
-|-------|-----------------------|----------------------|
-|       | free pins             |                      |
-|-------|-----------------------|----------------------|
-|-------|-----------------------|----------------------|
+| free pins
 | 0     |                       | not use              |
-|-------|-----------------------|----------------------|
-maybe use the 5th element.
-
+| maybe use the 5th element.
 | 16    | 2W                    | Connected to LED     |
 
-
+```
   Mode selector: 11 Signals from 15 available using GPIO27,GPIO26Serial]
   2 3-way in nano. (4 signals) [only 2 values]
   6 2-way ESP32 [2,4,5,12,14,15]
@@ -292,14 +282,7 @@ maybe use the 5th element.
 
   central pole = GND
   external poles = PINS
-  
-  
-  
-  
-  
-  
-  
-  
+
   Mode selector: 11 Signals from 15 available using GPIO27,GPIO26 [4 available, frees 4 GPIO[4,16,17,18,19,23,32], used on Serial]
   5 3-way: (10 signals, using 8 in one expansor I2C using 2 in the other expansor.
   6 2-way: (6 signals, using 6 in the second expansor)
@@ -323,16 +306,13 @@ maybe use the 5th element.
 
                        ?? 1 signal 2 GPIO available [Serial]
                        ?? 4 signal available on keypad.
- 
+
+```
 
 
-
-
-
-
-https://github.com/AM-STUDIO/32-FUNCTION-BUTTON-BOX/blob/master/ARDUINO_BUTTON_BOXV2.ino
-https://forum.arduino.cc/t/sketch-para-cinco-encoders-con-promicro/994954
-https://www.youtube.com/watch?v=Z7Sc4MJ8RPM
+* https://github.com/AM-STUDIO/32-FUNCTION-BUTTON-BOX/blob/master/ARDUINO_BUTTON_BOXV2.ino
+* https://forum.arduino.cc/t/sketch-para-cinco-encoders-con-promicro/994954
+* https://www.youtube.com/watch?v=Z7Sc4MJ8RPM
 
 ```
 //BUTTON BOX 
@@ -497,9 +477,8 @@ void CheckAllEncoders(void) {
 }
 ```
 
-
-
 ## Voltage divider for TX with ESP32
+
 First off all, we need to do a voltage adaptation from 5V to 3.3V in ESP:
 
 ```
@@ -520,6 +499,7 @@ First off all, we need to do a voltage adaptation from 5V to 3.3V in ESP:
 
 ## Wiring information
 
+```
                                                                                     
 ARDUINO NANO
 Serial port with voltage divider
@@ -603,20 +583,18 @@ PC8574->P5-----------------------------------------------------------A<-ROT3
 PC8574->P6-----------------------------------------------------------B<-ROT4
 PC8574->P7-----------------------------------------------------------A<-ROT4
 PC8574->INT-x
+```
 
+## To use 2.0.5 core instead 1.0.6
 
+* Only can use 1.0.6 due the rest is compiling from 2.x.x (mac os 10.14 >)
+* https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html
+* https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+* https://dl.espressif.com/dl/package_esp32_index.json
+* http://arduino.esp8266.com/stable/package_esp8266com_index.json
 
+## i2c addresses
 
-to use 2.0.5 core instead 1.0.6
-Only can use 1.0.6 due the rest is compiling from 2.x.x (mac os 10.14 >)
-https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html
-https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-
-current
-https://dl.espressif.com/dl/package_esp32_index.json
-http://arduino.esp8266.com/stable/package_esp8266com_index.json
-
-i2c addresses
 ```
 // 32 (0x20)
 // default jumper connection:
@@ -655,24 +633,26 @@ i2c addresses
 //
 ```
 
-## note about serial sync and power up simultaneously
+## Note about serial sync and power up simultaneously
 
-Arduino delay(100) on setup() (before)
-ESP32 delay(500) on setup() (after)
+* Arduino delay(100) on setup() (before)
+* ESP32 delay(500) on setup() (after)
 
 if not done so, the serial port doesn't work.
 
-## how to change the windows name for the device.
+## How to change the windows name for the device.
 
-- If you plan to use two devices in the same pc, you must change
-- this values (e.g. BL-Radio & BL-Buttons)
-- Look in device manager for the Bluetooh -> BL-Combo or BL-Radio.
-- right click, Children, point the Dev_VID&02bd05_PID&02b82_REV&1202
-- these are the values we put on BLCombo:h: 
+* If you plan to use two devices in the same pc, you must change
+* this values (e.g. BL-Radio & BL-Buttons)
+* Look in device manager for the Bluetooh -> BL-Combo or BL-Radio.
+* right click, Children, point the Dev_VID&02bd05_PID&02b82_REV&1202
+*  these are the values we put on BLCombo:h: 
+  
 ```
   uint16_t vid = 0x05bd;
   uint16_t pid = 0x820b;
   uint16_t version = 0x0212;
 ```
-- Issue a regedit and look for "8 axis" or look for VIDBD05 [see the pattern]
-- Then under Joystick->OEM->VIDBD05&PID_0B82 Change OEMName to desired one.
+
+* Issue a regedit and look for "8 axis" or look for VIDBD05 [see the pattern]
+* Then under Joystick->OEM->VIDBD05&PID_0B82 Change OEMName to desired one.

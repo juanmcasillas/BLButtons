@@ -2,6 +2,13 @@
 A simple, BLE Buttons controller to implement Simulator's button panels. Now supports multiple BLE profile,
 you you map at the same time a Keyboard, a Gamepad and a Mouse.
 
+Check this elements also:
+
+* [ESP32-BLE-Combo](https://github.com/juanmcasillas/ESP32-BLE-Combo). Implements a multiple BLE profile, so you can send keyboard, mouse and gamepad (joystick) inputs as HID device.
+* [BL-Radio](https://github.com/juanmcasillas/BLButtons/blob/master/RADIO.md). A custom made, generic radio panel (or whatever you want) to map the aircraft multiple radios interface. Implements modes and button remapping, as a bluetooth gamepad.
+* [VoiceButtons](https://github.com/juanmcasillas/BLButtons/blob/master/voicebuttons/README.md). Map joystick inputs to text-to-speech commands. Works on Windows (Windows 10 tested) and includes a configuration file to tailor the app to your needs, and a DCS export module to extract data from it (so you can asign specific radio profiles por each mod (aka plane)). Very useful if you flight in VR and uses the `BL-Radio` radio panel.
+
+
 <img src="img/building/buttons2.jpg" width="500px"></img>
 <img src="img/building/install_02.jpg" width="500px"></img>
 
