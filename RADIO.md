@@ -2,6 +2,12 @@
 
 Implement a generic radio control panel for DCS. Support multiple profiles, button mapping, and works as BLE wireless gamepad device.
 
+<center>
+<img src="img/radio/box.jpg" width="500px">
+</br>
+<img src="img/radio/wiring.jpg" width="500px">
+</center>
+
 # Requirements
 
 ```
