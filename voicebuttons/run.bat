@@ -1,1 +1,0 @@
-E:\Software\python39\python.exe .\voiceb.py -vvv
