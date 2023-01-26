@@ -8,6 +8,15 @@ Implement a generic radio control panel for DCS. Support multiple profiles, butt
 <img src="img/radio/wiring.jpg" width="500px">
 </center>
 
+
+<center>
+<img src="doc/1_wiring_diagram_-_block.png" width="500px">
+</br>
+<img src="doc/2_wiring_diagram.png" width="500px">
+</br>
+<img src="doc/3_button_mapping.png" width="500px">
+</center>
+
 # 3D Printing files:
 
 * <a href="stl/radio/tapa_radio.stl">Box Cover</a>
