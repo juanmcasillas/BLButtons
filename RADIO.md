@@ -12,9 +12,9 @@ Implement a generic radio control panel for DCS. Support multiple profiles, butt
 <center>
 <img src="doc/1_wiring_diagram_-_block.png" width="1024px">
 </br>
-<img src="doc/2_wiring_diagram.png" width="500px">
+<img src="doc/2_wiring_diagram.png" width="1024px">
 </br>
-<img src="doc/3_button_mapping.png" width="500px">
+<img src="doc/3_button_mapping.png" width="1024px">
 </center>
 
 # 3D Printing files:
