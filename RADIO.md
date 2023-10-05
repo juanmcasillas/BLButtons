@@ -1,6 +1,21 @@
 # BL-Radio
 
-Implement a generic radio control panel for DCS. Support multiple profiles, button mapping, and works as BLE wireless gamepad device.
+Implement a generic radio control panel for DCS. Support multiple profiles, button mapping, and works as BLE wireless gamepad device. Now, support sending keypresses based on button mapping. The rationale is the OBS studio doesn't work
+with DirectInput, so you can't map commands (start record, end record) to buttons what it's a pain. So due the the 
+BLE combo stack supports multiple devices (keyboard, keypad, and mouse) I manage to double some buttons as keyboard
+keypresses. if `KEYBOARD_CHORD` is defined, `KEY_RIGHT_ALT + KEY_RIGHT_CTRL` is also send to avoid keyboard collision.
+see `KEYBOARD_MAP` array to map the desired keypresses to the buttons (keypress definitions are stored on `BleKeyboard.h`)
+
+```
+NANO 2W switches (top switches ath the sides of the selector box)
+
+SW2_1_S1 ----> button 11 ---> Also doubles as keypress KEY_RIGHT_ALT + KEY_RIGHT_CTRL + KEYPAD_DIVIDE   (/ in keypad)
+SW2_1_S2 ----> button 12 ---> Also doubles as keypress KEY_RIGHT_ALT + KEY_RIGHT_CTRL + KEYPAD_MULTIPLY (* in keypad)
+SW2_2_S1 ----> button 13 ---> Also doubles as keypress KEY_RIGHT_ALT + KEY_RIGHT_CTRL + KEYPAD_SUBTRACT (- in keypad)
+SW2_2_S2 ----> button 14 ---> Also doubles as keypress KEY_RIGHT_ALT + KEY_RIGHT_CTRL + KEYPAD_ADD      (+ in keypad)
+```
+
+
 
 <center>
 <img src="img/radio/box.jpg" width="500px">

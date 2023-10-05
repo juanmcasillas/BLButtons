@@ -20,7 +20,7 @@
 // https://github.com/khoih-prog/ESP32TimerInterrupt
 //
 
-#define RELEASE 1                  /* define this to remove all debug data */
+#define RELEASE 1                 /* define this to remove all debug data */
 #define DEBUG_SERIAL  0x1
 #define DEBUG_SIGNALS 0x2
 #define DEBUG_BUTTON  0x4
@@ -29,8 +29,9 @@
 #define DEBUG_ROTENC 0x20
 #define DEBUG_ALL    0xFF
 // #define DEBUG DEBUG_ALL
-#define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
-//#define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
+// #define DEBUG DEBUG_SERIAL | DEBUG_BUTTON
+// #define DEBUG DEBUG_SERIAL | DEBUG_SIGNALS               /* define this to debug extra info */
+// #define TESTING 1                                        /* undefine this to use the real BL stack. Clean All and build */
 
 
 // see helpers.h for debug defines
@@ -276,6 +277,8 @@ unsigned char PREV_SIGNALS[MAX_SIGNALS] = { 0 };
 //
 uint8_t DATA;
 
+
+
 // max buttons: 35 
 // rotenc = 15 buttons. (12 counting only the last row)
 #define LAST_FIXED_BUTTON 23 // the last button of the non movable buttons
@@ -371,6 +374,76 @@ unsigned char BUTTON_MAP[] = {
 
 };
 
+//
+// create a keyboard map. If the signal is mapped here (!= 0)
+// then invoke the keypress using the keyboard interface.
+// useful for multiple keymapping (you know, obs)
+//
+
+// if keyboard chord is enabled, keys are send with
+// to avoid overlapping. Chord can be only 2 keys
+// KEY_RIGHT_ALT + KEY_RIGHT_CTRL + KEY
+#define KEYBOARD_CHORD 1
+
+unsigned char KEYBOARD_MAP[] = {
+0, // S_1P12T_1
+0, // S_1P12T_2
+0, // S_1P12T_3
+0, // S_1P12T_4
+0, // S_1P12T_5
+0, // S_1P12T_6
+0, // S_1P12T_7
+0, // S_1P12T_8
+0, // S_1P12T_9
+0, // S_1P12T_10
+0, // S_1P12T_11
+KEYPAD_DIVIDE, // S_SW2_1_S1 mapped to signal 11 (position=11) mapped to KEYPAD_DIVIDE      // this is position 11 (signal == 11)
+KEYPAD_MULTIPLY, // S_SW2_1_S2 mapped to signal 12 (position=12) mapped to KEYPAD_MULTIPLY  // this is position 12 (signal == 12)
+KEYPAD_SUBTRACT, // S_SW2_2_S1 mapped to signal 13 (position=13) mapped to KEYPAD_SUBTRACT  // this is position 13 (signal == 13)
+KEYPAD_ADD, // S_SW2_2_S2 mapped to signal 14 (position=14) mapped to KEYPAD_ADD            // this is position 14 (signal == 14)
+0, // S_SW1_1_S1
+0, // S_SW1_2_S1
+0, // S_SW1_3_S1
+0, // S_SW1_4_S1 
+0, // S_SW1_6_S1  // bad wiring
+0, // S_SW1_5_S1 
+0,  // S_KP_1   
+0,  // S_KP_2   
+0,  // S_KP_3   
+0,  // S_KP_4   
+0,  // S_KP_5   
+0,  // S_KP_6   
+0,  // S_KP_7   
+0,  // S_KP_8   
+0,  // S_KP_9   
+0, // S_KP_10
+0, // S_KP_11     // ROT5
+0, // S_KP_12     // ROT1
+0, // S_KP_13     // ROT2
+0, // S_KP_14     // ROT3
+0, // S_KP_15     // ROT4
+0, // S_KP_16     // not used.
+0, // S_ROT_4_LEFT  
+0, // S_ROT_4_RIGHT 
+0, // S_ROT_3_LEFT  
+0, // S_ROT_3_RIGHT 
+0, // S_ROT_2_LEFT  
+0, // S_ROT_2_RIGHT 
+0, // S_ROT_1_LEFT  
+0, // S_ROT_1_RIGHT 
+0, // S_ROT_5_LEFT  
+0, // S_ROT_5_RIGHT
+0, // S_MODE_1
+0, // S_MODE_2
+0, // S_MODE_3
+0, // S_MODE_4
+0, // S_MODE_5
+0, // S_MODE_6
+0, // S_MODE_7
+0  // S_MODE_8
+};
+
+
 #define FIRST_MODE_BUTTON 121
 
 
@@ -393,6 +466,22 @@ void timer_isr() {
     for (int i=0; i< MAX_ROTARIES; i++) {
         encoders[i]->service();
     }
+}
+
+
+/**
+ * @brief check if the signal has a keyboard mapping defined. Don't count the selector mode.
+ * 
+ * @param signal_num 
+ * @return uint8_t 0 if not, else the value of the key being pressed.
+*/
+
+uint8_t keyboard_mapping(uint8_t signal_num) {
+    uint8_t value = BUTTON_MAP[signal_num];
+    // use only fixed buttons to map keyboards,
+    // not use mode selector buttons.
+    return ( value == 0 || value >  LAST_FIXED_BUTTON ? 0 : KEYBOARD_MAP[value] );
+    
 }
 
 
@@ -433,6 +522,7 @@ void send_buttons() {
         for (uint8_t i=0; i<MAX_SIGNALS; i++) {
             uint8_t button_value = SIGNALS[i];
             uint8_t button_map = button_mapping(i);
+            uint8_t key_map = keyboard_mapping(i);
             if (button_map == 0) {
                 continue;
             }
@@ -442,20 +532,51 @@ void send_buttons() {
                 memset(line, 0, LINE_SIZE);
                 sprintf(line, "Button press %d [selector: %x]", button_map, SELECTOR);
                 Serial.println(line);
+                if (key_map) {
+                    memset(line, 0, LINE_SIZE);
+                    sprintf(line, "Button press %d key_press %d", button_map, key_map);
+                    Serial.println(line);
+                }
                 #endif
                 
                 #ifndef TESTING
                     Gamepad.press(button_map);
+                    if (key_map != 0) {
+                        //
+                        #ifdef KEYBOARD_CHORD
+                            Keyboard.press(KEY_RIGHT_ALT);
+                            Keyboard.press(KEY_RIGHT_CTRL);
+                        #endif
+                        Keyboard.press(key_map);
+                        Keyboard.releaseAll();
+
+                    }
                 #endif
+
+                
+
             }
             else {
                 #if !defined(RELEASE) && (DEBUG & DEBUG_BUTTON)
                 memset(line, 0, LINE_SIZE);
                 sprintf(line, "Button release %d [selector: %x]", button_map, SELECTOR);
                 Serial.println(line);
+                if (key_map) {
+                    memset(line, 0, LINE_SIZE);
+                    sprintf(line, "Button release %d key_press %d", button_map, key_map);
+                    Serial.println(line);
+                }                
                 #endif
                 #ifndef TESTING
                     Gamepad.release(button_map);
+                    // not needed, only send the keyboard press and release them quickly
+                    // if (key_map != 0) {
+                    //     #ifdef KEYBOARD_CHORD
+                    //         Keyboard.release(KEY_RIGHT_ALT);
+                    //         Keyboard.release(KEY_RIGHT_CTRL);
+                    //     #endif
+                    //     Keyboard.release(key_map);
+                    // }
                 #endif
             }
         }
