@@ -81,7 +81,7 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 |13       | 4/2  | OK        | OK     | Boot fail if pulled HIGH          |
 |14   x   | 6/2  | OK        | OK     | Outputs PWM signal at boot        |
 |15   x   | 2/2  | OK        | OK     | Outputs PWM signal at boot        |
-|16   x   |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
+|16   x   |      | --        | --     | used on ESP-32_WROVER_KIT **      |
 |17   x   |      | OK        | OK     | used on ESP-32_WROVER_KIT         |
 |18   x   |      | OK        | OK     |                                   |
 |19   x   |      | OK        | OK     |                                   |
@@ -96,6 +96,7 @@ Note: in some ESP32 development boards you need to keep the ESP32 on-board **`BO
 |34   x   | 6/1  | OK        |        | Input Only                        |
 |35   x   | 7/1  | OK        |        | Input Only                        |
 
+* PIN16 on new version, doesn't work. Changed with PIN13
 * ADC Column: ADC Channel/ADC1|ADC2. No number means no ADC.
 * ADC2 pins cannot be used when Wi-Fi is used. 
 * The ADC input channels have a 12 bit resolution. 
@@ -160,7 +161,7 @@ CLUTCH (7-2=5)
 | 2     | CLUTCH_2              | low or won't flash   |
 |-------|-----------------------|----------------------|
 | 4     | ROW_0                 | Pulled up            |
-| 16    | ROW_1                 | Connected to LED     |
+| 13    | ROW_1                 | Connected to LED (*) |
 | 17    | ROW_2                 |                      |
 | 5     | ROW_3                 | Boot Fail if HIGH    |
 |-------|-----------------------|----------------------|
@@ -172,7 +173,7 @@ CLUTCH (7-2=5)
 |-------|-----------------------|----------------------|
 | 0     | free pins             | not use              |
 | 2     |                       |                      | 
-| 13    |                       |                      |
+| 16    | in new version, fails | (*) changed with 13  |
 | 22    |                       |                      |
 | 23    |                       |                      |
 |-------|-----------------------|----------------------|

@@ -28,7 +28,7 @@
 #define ROWS 4
 #define COLS 4
 
-uint8_t rowPins[ROWS] = {4, 16, 17, 5};
+uint8_t rowPins[ROWS] = {4, 13, 17, 5};
 uint8_t colPins[COLS] = {14, 27, 26, 25};
 
 #define NUM_BUTTONS 19
@@ -143,7 +143,7 @@ void setup() {
 void keypadEvent(KeypadEvent key) {
     uint8_t keystate = customKeypad.getState();
     if (keystate == PRESSED) {
-        pressKey((NUM_BUTTONS * mode) + key);
+        
         if (mode == 2) {
             uint8_t mapped = button_key_map[key-1];
             if (mapped != MOUSE_LEFT && mapped != MOUSE_RIGHT && mapped != MOUSE_FORWARD && mapped != MOUSE_BACK) {
@@ -152,6 +152,9 @@ void keypadEvent(KeypadEvent key) {
             else {
                 Mouse.click(mapped);
             }
+        }
+        else {
+            pressKey((NUM_BUTTONS * mode) + key);
         }
     }
     if (keystate == RELEASED) {
