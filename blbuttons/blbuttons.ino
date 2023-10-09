@@ -41,9 +41,9 @@ uint8_t keymap[ROWS][COLS] = {
 };
 
 uint8_t button_key_map[] = {
-    MOUSE_LEFT,     KEY_F8,   KEY_F5,  KEY_F1,
-    MOUSE_RIGHT,    KEY_F9,   KEY_F6,  KEY_F2,
-    MOUSE_FORWARD,  KEY_F10,  KEY_F7,  KEY_F3,
+    MOUSE_LEFT,     KEY_F9,   KEY_F5,  KEY_F1,
+    MOUSE_RIGHT,    KEY_F10,  KEY_F6,  KEY_F2,
+    MOUSE_FORWARD,  KEY_F11,  KEY_F7,  KEY_F3,
     MOUSE_BACK,     KEY_F12,  KEY_F8,  KEY_F4  
 };
 
