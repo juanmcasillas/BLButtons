@@ -20,6 +20,8 @@
 // https://github.com/khoih-prog/ESP32TimerInterrupt
 //
 
+// define this to support multiple keyscan press (see below)
+// #define ENABLE_KEYBOARD_MAP 1
 #define RELEASE 1                 /* define this to remove all debug data */
 #define DEBUG_SERIAL  0x1
 #define DEBUG_SIGNALS 0x2
@@ -378,7 +380,9 @@ unsigned char BUTTON_MAP[] = {
 // create a keyboard map. If the signal is mapped here (!= 0)
 // then invoke the keypress using the keyboard interface.
 // useful for multiple keymapping (you know, obs)
-//
+// define ENABLE_KEYBOARD_MAP for support this (see top)
+
+
 
 // if keyboard chord is enabled, keys are send with
 // to avoid overlapping. Chord can be only 2 keys
@@ -522,7 +526,9 @@ void send_buttons() {
         for (uint8_t i=0; i<MAX_SIGNALS; i++) {
             uint8_t button_value = SIGNALS[i];
             uint8_t button_map = button_mapping(i);
-            uint8_t key_map = keyboard_mapping(i);
+            #ifdef ENABLE_KEYBOARD_MAP
+                uint8_t key_map = keyboard_mapping(i);
+            #endif
             if (button_map == 0) {
                 continue;
             }
@@ -541,6 +547,7 @@ void send_buttons() {
                 
                 #ifndef TESTING
                     Gamepad.press(button_map);
+                    #ifdef ENABLE_KEYBOARD_MAP
                     if (key_map != 0) {
                         //
                         #ifdef KEYBOARD_CHORD
@@ -549,8 +556,8 @@ void send_buttons() {
                         #endif
                         Keyboard.press(key_map);
                         Keyboard.releaseAll();
-
                     }
+                    #endif
                 #endif
 
                 
@@ -570,6 +577,7 @@ void send_buttons() {
                 #ifndef TESTING
                     Gamepad.release(button_map);
                     // not needed, only send the keyboard press and release them quickly
+                    // #ifdef ENABLE_KEYBOARD_MAP
                     // if (key_map != 0) {
                     //     #ifdef KEYBOARD_CHORD
                     //         Keyboard.release(KEY_RIGHT_ALT);
@@ -577,6 +585,7 @@ void send_buttons() {
                     //     #endif
                     //     Keyboard.release(key_map);
                     // }
+                    // #endif
                 #endif
             }
         }
